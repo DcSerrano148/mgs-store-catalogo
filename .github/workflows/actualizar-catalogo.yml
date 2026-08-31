@@ -1,0 +1,69 @@
+name: Actualizar catálogo desde Excel
+
+on:
+  push:
+    paths:
+      - 'datos/Catalogo_MG_Store_Maestro_Definitivo.xlsx'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependencias
+        run: pip install pandas openpyxl
+
+      - name: Generar catalogo.json desde Excel
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          import json
+
+          archivo = "datos/Catalogo_MG_Store_Maestro_Definitivo.xlsx"
+          df = pd.read_excel(archivo, sheet_name="Catálogo")
+
+          registros = []
+
+          for _, row in df.iterrows():
+              item = {}
+
+              for col, value in row.items():
+                  if pd.isna(value):
+                      item[col] = None
+                  elif hasattr(value, "item"):
+                      item[col] = value.item()
+                  else:
+                      item[col] = value
+
+              registros.append(item)
+
+          with open("datos/catalogo.json", "w", encoding="utf-8") as f:
+              json.dump(
+                  registros,
+                  f,
+                  ensure_ascii=False,
+                  indent=2
+              )
+
+          print(f"Generados {len(registros)} productos.")
+          PY
+
+      - name: Guardar catálogo actualizado
+        run: |
+          git config user.name "MG's Store Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add datos/catalogo.json
+          git diff --cached --quiet || git commit -m "Actualizar catálogo desde Excel"
+          git push
