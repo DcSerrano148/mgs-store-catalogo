@@ -3,7 +3,7 @@ name: Actualizar catálogo desde Excel
 on:
   push:
     paths:
-      - 'datos/Catalogo_MG_Store_Maestro_Definitivo.xlsx'
+      - 'datos/*.xlsx'
   workflow_dispatch:
 
 permissions:
@@ -30,9 +30,23 @@ jobs:
           python - <<'PY'
           import pandas as pd
           import json
+          from pathlib import Path
 
-          archivo = "datos/Catalogo_MG_Store_Maestro_Definitivo.xlsx"
-          df = pd.read_excel(archivo, sheet_name="Catálogo")
+          archivos = list(Path("datos").glob("*.xlsx"))
+
+          if not archivos:
+              raise FileNotFoundError(
+                  "No se encontró ningún archivo Excel dentro de datos/"
+              )
+
+          archivo = archivos[0]
+
+          print(f"Excel encontrado: {archivo}")
+
+          df = pd.read_excel(
+              archivo,
+              sheet_name="Catálogo"
+          )
 
           registros = []
 
@@ -49,7 +63,11 @@ jobs:
 
               registros.append(item)
 
-          with open("datos/catalogo.json", "w", encoding="utf-8") as f:
+          with open(
+              "datos/catalogo.json",
+              "w",
+              encoding="utf-8"
+          ) as f:
               json.dump(
                   registros,
                   f,
@@ -57,13 +75,19 @@ jobs:
                   indent=2
               )
 
-          print(f"Generados {len(registros)} productos.")
+          print(
+              f"Generados {len(registros)} productos."
+          )
           PY
 
       - name: Guardar catálogo actualizado
         run: |
           git config user.name "MG's Store Bot"
           git config user.email "actions@users.noreply.github.com"
+
           git add datos/catalogo.json
-          git diff --cached --quiet || git commit -m "Actualizar catálogo desde Excel"
+
+          git diff --cached --quiet || \
+            git commit -m "Actualizar catálogo desde Excel"
+
           git push
