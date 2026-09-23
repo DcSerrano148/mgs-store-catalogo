@@ -1,59 +1,114 @@
-name: Actualizar catálogo JSON
+import pandas as pd
+import json
+import re
+from pathlib import Path
+from datetime import datetime
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'datos/catalogo.csv'
-      - 'datos/catalogo.xlsx'
-      - 'datos/precios.csv'
-      - 'datos/precios.xlsx'
-      - 'scripts/generar_catalogo.py'
-      - '.github/workflows/actualizar-catalogo.yml'
-  workflow_dispatch:   # permite ejecutarlo manualmente desde GitHub
+CATALOGO_CSV = Path("datos/catalogo.csv")
+CATALOGO_XLSX = Path("datos/catalogo.xlsx")
+PRECIOS_CSV = Path("datos/precios.csv")
+PRECIOS_XLSX = Path("datos/precios.xlsx")
+OUT = Path("datos/catalogo.json")
+OUT.parent.mkdir(parents=True, exist_ok=True)
 
-permissions:
-  contents: write
 
-jobs:
-  generar:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout del repositorio
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+def clean(v):
+    if v is None:
+        return ""
+    try:
+        if pd.isna(v):
+            return ""
+    except (TypeError, ValueError):
+        pass
+    return re.sub(r"\s+", " ", str(v)).strip()
 
-      - name: Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
-      - name: Instalar dependencias
-        run: |
-          python -m pip install --upgrade pip
-          pip install pandas openpyxl
+def leer_tabla(csv_path, xlsx_path):
+    if csv_path.exists():
+        df = pd.read_csv(csv_path, encoding="utf-8")
+        fuente = csv_path.name
+    elif xlsx_path.exists():
+        df = pd.read_excel(xlsx_path)
+        fuente = xlsx_path.name
+    else:
+        return None, None
+    df.columns = [str(c).strip().lower() for c in df.columns]
+    return df, fuente
 
-      - name: Generar catalogo.json
-        run: python scripts/generar_catalogo.py
 
-      - name: Verificar que el JSON se generó
-        run: |
-          if [ ! -f datos/catalogo.json ]; then
-            echo "❌ No se generó datos/catalogo.json"
-            exit 1
-          fi
-          echo "✅ JSON generado: $(wc -c < datos/catalogo.json) bytes"
+cat_df, cat_fuente = leer_tabla(CATALOGO_CSV, CATALOGO_XLSX)
+if cat_df is None:
+    raise SystemExit("No encontre datos/catalogo.csv ni datos/catalogo.xlsx")
 
-      - name: Commit y push si hay cambios
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add datos/catalogo.json
-          if git diff --staged --quiet; then
-            echo "ℹ️  Sin cambios en catalogo.json"
-          else
-            git commit -m "🤖 Auto: regenerar catálogo [skip ci]"
-            git push
-            echo "✅ catalogo.json actualizado y subido"
-          fi
+pre_df, pre_fuente = leer_tabla(PRECIOS_CSV, PRECIOS_XLSX)
+precios = {}
+if pre_df is None:
+    print("Aviso: no encontre precios. Los precios quedaran en null.")
+else:
+    for _, r in pre_df.iterrows():
+        code = clean(r.get("codigo"))
+        if not code:
+            continue
+        minor = pd.to_numeric(r.get("precio_minorista_usd"), errors="coerce")
+        mayor = pd.to_numeric(r.get("precio_mayorista_usd"), errors="coerce")
+        precios[code] = {
+            "retail": float(minor) if pd.notna(minor) else None,
+            "wholesale": float(mayor) if pd.notna(mayor) else None,
+        }
+    print("Precios cargados: " + str(len(precios)) + " desde " + pre_fuente)
+
+
+items = []
+issues = []
+seen = set()
+
+for i, r in cat_df.iterrows():
+    name = clean(r.get("producto"))
+    if not name or name.lower() == "nan":
+        continue
+
+    code = clean(r.get("codigo"))
+    if not code or code in seen:
+        issues.append("Fila " + str(i + 2) + ": codigo vacio o duplicado (" + code + ")")
+        continue
+    seen.add(code)
+
+    unidades = pd.to_numeric(r.get("unidades"), errors="coerce")
+    disp = clean(r.get("disponibilidad")).lower() == "disponible"
+    p = precios.get(code, {"retail": None, "wholesale": None})
+
+    items.append({
+        "code": code,
+        "name": name,
+        "cat": clean(r.get("categoria")) or "Accesorios y tornilleria",
+        "seccion": clean(r.get("seccion")),
+        "stock": int(unidades) if pd.notna(unidades) else 0,
+        "disponible": disp,
+        "retail": p["retail"],
+        "wholesale": p["wholesale"],
+        "photo": clean(r.get("foto")) or ("fotos/" + code + ".jpg"),
+    })
+
+    if p["retail"] is None:
+        issues.append("Sin precio minorista: " + code)
+    if p["wholesale"] is None:
+        issues.append("Sin precio mayorista: " + code)
+
+
+payload = {
+    "version": datetime.now().strftime("%Y%m%d-%H%M"),
+    "generated_at": datetime.now().isoformat(timespec="seconds"),
+    "total": len(items),
+    "items": items,
+}
+OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+print("")
+print("Catalogo generado: " + str(len(items)) + " productos -> " + str(OUT))
+print("Sin precio minorista: " + str(sum(1 for x in items if x["retail"] is None)))
+print("Sin precio mayorista: " + str(sum(1 for x in items if x["wholesale"] is None)))
+print("Disponibles: " + str(sum(1 for x in items if x["disponible"])))
+if issues:
+    print("Observaciones (" + str(len(issues)) + "):")
+    for x in issues[:15]:
+        print("  - " + x)
