@@ -62,78 +62,112 @@ def cargar_precios():
         if not code: continue
         minor = pd.to_numeric(r.get("precio_minorista_usd"), errors="coerce")
         mayor = pd.to_numeric(r.get("precio_mayorista_usd"), errors="coerce")
-        mapa[code] = {
-            "retail":    float(minor) if pd.notna(minor) else None,
+        mapa[code] = {import pandas as pd, json, re
+from pathlib import Path
+from datetime import datetime
+
+CATALOGO_CSV = Path("datos/catalogo.csv")
+CATALOGO_XLSX = Path("datos/catalogo.xlsx")
+PRECIOS_CSV = Path("datos/precios.csv")
+PRECIOS_XLSX = Path("datos/precios.xlsx")
+OUT = Path("datos/catalogo.json")
+OUT.parent.mkdir(parents=True, exist_ok=True)
+
+
+def clean(v):
+    if v is None: return ""
+    try:
+        if pd.isna(v): return ""
+    except (TypeError, ValueError):
+        pass
+    return re.sub(r"\s+", " ", str(v)).strip()
+
+
+def leer_tabla(csv_path, xlsx_path):
+    """Lee CSV si existe, si no XLSX."""
+    if csv_path.exists():
+        df = pd.read_csv(csv_path, encoding="utf-8")
+        fuente = csv_path.name
+    elif xlsx_path.exists():
+        df = pd.read_excel(xlsx_path)
+        fuente = xlsx_path.name
+    else:
+        return None, None
+    df.columns = [str(c).strip().lower() for c in df.columns]
+    return df, fuente
+
+
+# ---------- 1) Catálogo ----------
+cat_df, cat_fuente = leer_tabla(CATALOGO_CSV, CATALOGO_XLSX)
+if cat_df is None:
+    raise SystemExit(f"❌ No encontré {CATALOGO_CSV} ni {CATALOGO_XLSX}")
+
+# ---------- 2) Precios ----------
+pre_df, pre_fuente = leer_tabla(PRECIOS_CSV, PRECIOS_XLSX)
+if pre_df is None:
+    print(f"⚠️  No encontré precios. Los precios quedarán en null.")
+    precios = {}
+else:
+    precios = {}
+    for _, r in pre_df.iterrows():
+        code = clean(r.get("codigo"))
+        if not code: continue
+        minor = pd.to_numeric(r.get("precio_minorista_usd"), errors="coerce")
+        mayor = pd.to_numeric(r.get("precio_mayorista_usd"), errors="coerce")
+        precios[code] = {
+            "retail": float(minor) if pd.notna(minor) else None,
             "wholesale": float(mayor) if pd.notna(mayor) else None,
         }
-    print(f"✅ {len(mapa)} precios cargados desde {fuente.name}")
-    return mapa, fuente
-
-
-# ---------- 2) Cargar catálogo ----------
-if not CATALOGO_XLSX.exists():
-    raise SystemExit(f"❌ No encuentro {CATALOGO_XLSX}")
-
-df = pd.read_excel(CATALOGO_XLSX, sheet_name="Catálogo")
-df.columns = [str(c).strip() for c in df.columns]
+    print(f"✅ {len(precios)} precios cargados desde {pre_fuente}")
 
 # ---------- 3) JOIN ----------
-precios, _ = cargar_precios()
-
 items, issues, seen = [], [], set()
-for i, r in df.iterrows():
-    name = clean(r.get("Producto"))
+for i, r in cat_df.iterrows():
+    name = clean(r.get("producto"))
     if not name or name.lower() == "nan":
         continue
-
-    code = clean(r.get("Código"))
-    if not code:
-        issues.append(f"Fila {i+2}: sin código. Se omite.")
-        continue
-    if code in seen:
-        issues.append(f"Duplicado: {code} — se omite la segunda fila.")
+    code = clean(r.get("codigo"))
+    if not code or code in seen:
+        issues.append(f"Fila {i+2}: código vacío o duplicado ({code}). Se omite.")
         continue
     seen.add(code)
 
-    unidades = pd.to_numeric(r.get("Unidades"), errors="coerce")
-    disp     = clean(r.get("Disponibilidad")).lower() == "disponible"
-    cat      = clean(r.get("Categoría")) or category(name)
-
+    unidades = pd.to_numeric(r.get("unidades"), errors="coerce")
+    disp = clean(r.get("disponibilidad")).lower() == "disponible"
     p = precios.get(code, {"retail": None, "wholesale": None})
 
     items.append({
-        "code":       code,
-        "name":       name,
-        "cat":        cat,
-        "stock":      int(unidades) if pd.notna(unidades) else 0,
+        "code": code,
+        "name": name,
+        "cat": clean(r.get("categoria")) or "Accesorios y tornillería",
+        "seccion": clean(r.get("seccion")),
+        "stock": int(unidades) if pd.notna(unidades) else 0,
         "disponible": disp,
-        "retail":     p["retail"],
-        "wholesale":  p["wholesale"],
-        "photo":      f"fotos/{code}.jpg",
+        "retail": p["retail"],
+        "wholesale": p["wholesale"],
+        "photo": clean(r.get("foto")) or f"fotos/{code}.jpg",
     })
 
-    if p["retail"]    is None: issues.append(f"Sin precio minorista: {code}")
+    if p["retail"] is None: issues.append(f"Sin precio minorista: {code}")
     if p["wholesale"] is None: issues.append(f"Sin precio mayorista: {code}")
-    if not disp and not items[-1]["stock"]: issues.append(f"Agotado: {code}")
 
-# ---------- 4) Guardar ----------
+# ---------- 4) Guardar JSON ----------
 payload = {
-    "version":      datetime.now().strftime("%Y%m%d-%H%M"),
+    "version": datetime.now().strftime("%Y%m%d-%H%M"),
     "generated_at": datetime.now().isoformat(timespec="seconds"),
-    "total":        len(items),
-    "items":        items,
+    "total": len(items),
+    "items": items,
 }
 OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
-# ---------- 5) Reporte QA ----------
+# ---------- 5) QA ----------
 print(f"\n✅ Catálogo generado: {len(items)} productos → {OUT}")
-print(f"   Sin precio minorista: {sum(1 for i in items if i['retail']    is None)}")
+print(f"   Categorías: {sorted(set(i['cat'] for i in items))}")
+print(f"   Sin precio minorista: {sum(1 for i in items if i['retail'] is None)}")
 print(f"   Sin precio mayorista: {sum(1 for i in items if i['wholesale'] is None)}")
-print(f"   Disponibles:          {sum(1 for i in items if i['disponible'])}")
-print(f"   Agotados:             {sum(1 for i in items if not i['disponible'])}")
-
+print(f"   Disponibles: {sum(1 for i in items if i['disponible'])}")
+print(f"   Agotados: {sum(1 for i in items if not i['disponible'])}")
 if issues:
-    print(f"\n⚠️  {len(issues)} observaciones:")
-    for x in issues[:25]:
+    print(f"\n⚠️  {len(issues)} observaciones (primeras 15):")
+    for x in issues[:15]:
         print(f"   - {x}")
-    print(f"   ... (total {len(issues)})")
