@@ -1,55 +1,139 @@
-import pandas as pd, json, re, numpy as np
+import pandas as pd, json, re
 from pathlib import Path
+from datetime import datetime
 
-XLSX = Path("datos/Catalogo_MG_Store_Maestro_Definitivo.xlsx")
-OUT = Path("datos/catalogo.json")
+CATALOGO_XLSX = Path("datos/Catalogo_MG_Store_Maestro_Definitivo.xlsx")
+PRECIOS_CSV   = Path("datos/precios.csv")
+PRECIOS_XLSX  = Path("datos/precios.xlsx")
+OUT           = Path("datos/catalogo.json")
+OUT.parent.mkdir(parents=True, exist_ok=True)
 
-WHOLESALE = {
-"Forros":4,"Manillas robóticas bomba cable":8,"Chuchos de único":9,
-"Voltímetro configurables verdes":5,"Reparaciones de pinza":2.5,
-"Reparaciones de bomba delantera":2,"Tapas de válvula Cohete paquete de 4":3,
-"Pito 12v":3,"Alarmas":7.5,"Puños de 3V con Retroceso":10,
-"Músicas de dos bocinas":20,"Bombas de freno con manillas y pulmón corto":23,
-"Cajas de luces de 10 amp":5,"Espejos GN 125":6.5,
-"Espejos mishusuky Negros":8.5,"Pastillas de freno":2.2}
 
+# ---------- Utilidades ----------
 def norm(s):
-    return re.sub(r"\s+"," ",re.sub(r"[^a-z0-9 ]","",str(s).lower().translate(str.maketrans("áéíóúñ","aeioun")))).strip()
-W={norm(k):v for k,v in WHOLESALE.items()}
+    s = "" if s is None else str(s).lower()
+    return re.sub(r"[^a-z0-9 ]", "", s.translate(str.maketrans("áéíóúñ", "aeioun"))).strip()
 
-def wp(name):
-    n=norm(name)
-    if n in W: return W[n]
-    for k,v in W.items():
-        if k in n or n in k: return v
-    return None
+
+def clean(v):
+    if v is None: return ""
+    try:
+        if pd.isna(v): return ""
+    except (TypeError, ValueError):
+        pass
+    return re.sub(r"\s+", " ", str(v)).strip()
+
 
 def category(name):
-    n=norm(name)
-    if any(x in n for x in ["freno","pastilla","forro","pinza","bomba"]): return "Frenos"
-    if any(x in n for x in ["voltimetro","alarma","pito","musica","caja de luces"]): return "Eléctrico"
-    if any(x in n for x in ["luz","faro","bombillo","led"]): return "Iluminación"
-    if any(x in n for x in ["espejo","manilla","puño","chucho"]): return "Controles y carrocería"
-    if any(x in n for x in ["valvula","tapa"]): return "Accesorios"
-    return "Otros"
+    n = norm(name)
+    rules = [
+        ("Servicios técnicos",     ["reparacion", "reparaciones"]),
+        ("Frenos",                 ["freno", "pastilla", "forro", "pinza", "bomba", "pulmon", "manguera", "manija"]),
+        ("Iluminación",            ["faro", "farol", "intermitente", "neblinero", "led", "bombillo"]),
+        ("Ruedas y llantas",       ["goma", "llanta", "rueda", "rin", "valvula"]),
+        ("Químicos y sprays",      ["spray", "pintura", "limpiador", "abrillantador", "grasa", "barniz", "aflojalo"]),
+        ("Sistema eléctrico",      ["alarma", "conmutador", "voltimetro", "pito", "musica", "twitter", "gps", "breker",
+                                     "flasher", "regleta", "caja de luces", "toma de carga", "cargador"]),
+        ("Motor y transmisión",    ["bujia", "chucho", "kit de junta", "kit de rodamiento", "reten", "filtro", "6301"]),
+        ("Carrocería y controles", ["espejo", "manubrio", "puño", "puno", "slaider", "slider", "estribo", "letra", "capas"]),
+        ("Accesorios y tornillería",["brida", "tornillo", "candado", "liga", "embellecedor", "quita ruido", "tapa de valvula", "paquete"]),
+    ]
+    for cat, keys in rules:
+        if any(k in n for k in keys): return cat
+    return "Accesorios y tornillería"
 
-df=pd.read_excel(XLSX,sheet_name="Catálogo")
-df.columns=[str(c).strip() for c in df.columns]
-items=[]
-for _,r in df.iterrows():
-    name=str(r.get("Producto","")).strip()
-    if not name or name=="nan": continue
-    stock=pd.to_numeric(r.get("Existencia"),errors="coerce")
-    retail=pd.to_numeric(r.get("Precio_Minorista_USD"),errors="coerce")
-    w=wp(name)
+
+# ---------- 1) Cargar tabla de precios ----------
+def cargar_precios():
+    if PRECIOS_XLSX.exists():
+        df = pd.read_excel(PRECIOS_XLSX)
+        fuente = PRECIOS_XLSX
+    elif PRECIOS_CSV.exists():
+        df = pd.read_csv(PRECIOS_CSV, encoding="utf-8")
+        fuente = PRECIOS_CSV
+    else:
+        print(f"⚠️  No encontré {PRECIOS_CSV} ni {PRECIOS_XLSX}. Los precios quedarán en null.")
+        return {}, None
+
+    df.columns = [str(c).strip().lower() for c in df.columns]
+    mapa = {}
+    for _, r in df.iterrows():
+        code = clean(r.get("codigo"))
+        if not code: continue
+        minor = pd.to_numeric(r.get("precio_minorista_usd"), errors="coerce")
+        mayor = pd.to_numeric(r.get("precio_mayorista_usd"), errors="coerce")
+        mapa[code] = {
+            "retail":    float(minor) if pd.notna(minor) else None,
+            "wholesale": float(mayor) if pd.notna(mayor) else None,
+        }
+    print(f"✅ {len(mapa)} precios cargados desde {fuente.name}")
+    return mapa, fuente
+
+
+# ---------- 2) Cargar catálogo ----------
+if not CATALOGO_XLSX.exists():
+    raise SystemExit(f"❌ No encuentro {CATALOGO_XLSX}")
+
+df = pd.read_excel(CATALOGO_XLSX, sheet_name="Catálogo")
+df.columns = [str(c).strip() for c in df.columns]
+
+# ---------- 3) JOIN ----------
+precios, _ = cargar_precios()
+
+items, issues, seen = [], [], set()
+for i, r in df.iterrows():
+    name = clean(r.get("Producto"))
+    if not name or name.lower() == "nan":
+        continue
+
+    code = clean(r.get("Código"))
+    if not code:
+        issues.append(f"Fila {i+2}: sin código. Se omite.")
+        continue
+    if code in seen:
+        issues.append(f"Duplicado: {code} — se omite la segunda fila.")
+        continue
+    seen.add(code)
+
+    unidades = pd.to_numeric(r.get("Unidades"), errors="coerce")
+    disp     = clean(r.get("Disponibilidad")).lower() == "disponible"
+    cat      = clean(r.get("Categoría")) or category(name)
+
+    p = precios.get(code, {"retail": None, "wholesale": None})
+
     items.append({
-      "code":str(r.get("Código") or "").strip(),
-      "name":name,
-      "stock":int(stock) if pd.notna(stock) else 0,
-      "retail":float(retail) if pd.notna(retail) else None,
-      "wholesale":float(w) if w is not None else None,
-      "cat":str(r.get("Categoría") or category(name)),
-      "photo":f"fotos/{str(r.get('Código') or '').strip()}.jpg"
+        "code":       code,
+        "name":       name,
+        "cat":        cat,
+        "stock":      int(unidades) if pd.notna(unidades) else 0,
+        "disponible": disp,
+        "retail":     p["retail"],
+        "wholesale":  p["wholesale"],
+        "photo":      f"fotos/{code}.jpg",
     })
-OUT.write_text(json.dumps(items,ensure_ascii=False,indent=2),encoding="utf-8")
-print(f"Generados {len(items)} productos en {OUT}")
+
+    if p["retail"]    is None: issues.append(f"Sin precio minorista: {code}")
+    if p["wholesale"] is None: issues.append(f"Sin precio mayorista: {code}")
+    if not disp and not items[-1]["stock"]: issues.append(f"Agotado: {code}")
+
+# ---------- 4) Guardar ----------
+payload = {
+    "version":      datetime.now().strftime("%Y%m%d-%H%M"),
+    "generated_at": datetime.now().isoformat(timespec="seconds"),
+    "total":        len(items),
+    "items":        items,
+}
+OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+# ---------- 5) Reporte QA ----------
+print(f"\n✅ Catálogo generado: {len(items)} productos → {OUT}")
+print(f"   Sin precio minorista: {sum(1 for i in items if i['retail']    is None)}")
+print(f"   Sin precio mayorista: {sum(1 for i in items if i['wholesale'] is None)}")
+print(f"   Disponibles:          {sum(1 for i in items if i['disponible'])}")
+print(f"   Agotados:             {sum(1 for i in items if not i['disponible'])}")
+
+if issues:
+    print(f"\n⚠️  {len(issues)} observaciones:")
+    for x in issues[:25]:
+        print(f"   - {x}")
+    print(f"   ... (total {len(issues)})")
