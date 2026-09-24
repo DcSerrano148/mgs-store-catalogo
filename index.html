@@ -5,44 +5,49 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#111827">
 <title>MG's Store | Repuestos para motos eléctricas en La Habana</title>
-<meta name="description" content="Repuestos y piezas para motos eléctricas en La Habana. Frenos, luces, sistema eléctrico, carrocería, químicos. Mayorista y minorista. WhatsApp +53 5480 0976.">
+<meta name="description" content="Repuestos y piezas para motos eléctricas en La Habana. Frenos, luces, sistema eléctrico, carrocería. Mayorista y minorista. WhatsApp +53 5480 0976.">
 <meta property="og:title" content="MG's Store | Repuestos para motos eléctricas">
 <meta property="og:description" content="Catálogo mayorista y minorista. La Habana, Cuba.">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="es_CU">
 <link rel="icon" href="fotos/favicon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="styles.css">
 <script type="application/ld+json">
 {
-  "@context":"https://schema.org","@type":"Store",
-  "name":"MG's Store","description":"Repuestos para motos eléctricas",
+  "@context":"https://schema.org",
+  "@type":"Store",
+  "name":"MG's Store",
+  "description":"Repuestos para motos eléctricas",
   "telephone":"+5354800976",
   "address":{"@type":"PostalAddress","addressLocality":"Guanabacoa","addressRegion":"La Habana","addressCountry":"CU"},
-  "priceRange":"$0.3–$45 USD"
+  "priceRange":"$0.30 - $45 USD"
 }
 </script>
 </head>
 <body>
+
 <header>
   <h1>MG's Store</h1>
   <p>Repuestos y piezas para motos eléctricas</p>
-  <p>📲 <a class="wa-link" href="https://wa.me/5354800976">+53 5480 0976</a></p>
+  <p class="wa-head">📲 <a href="https://wa.me/5354800976">+53 5480 0976</a></p>
 </header>
 
 <main class="wrap">
+
   <div class="rate">
     <div class="top">
       <div>
         <div class="small">TASA DE CÁLCULO CUP</div>
         <strong id="calcRate">685 CUP/USD</strong>
-        <div class="small">Referencia: elTOQUE. Puedes ajustarla abajo.</div>
+        <div class="small">Referencia: elTOQUE</div>
       </div>
       <a class="link" href="https://eltoque.com/tasas-de-cambio-cuba/dolar" target="_blank" rel="noopener">Ver elTOQUE ↗</a>
     </div>
     <div class="rate-edit">
-      <label class="small">Ajustar tasa: </label>
+      <label class="small" for="rateInput">Ajustar tasa:</label>
       <input id="rateInput" type="number" min="1" step="1" value="685">
-      <button onclick="applyRate()">Aplicar</button>
+      <button type="button" onclick="applyRate()">Aplicar</button>
     </div>
   </div>
 
@@ -52,33 +57,39 @@
 
   <h2>¿Cómo deseas comprar?</h2>
   <div class="modes">
-    <button id="wh" class="mode" onclick="setMode('wholesale')">🛠️ Mayorista<br><span class="small">Talleres y tiendas · mínimo 5 por producto</span></button>
-    <button id="rt" class="mode active" onclick="setMode('retail')">🛒 Minorista<br><span class="small">Cliente particular</span></button>
+    <button id="wh" type="button" class="mode" onclick="setMode('wholesale')">
+      🛠️ Mayorista<br><span class="small">Talleres y tiendas · mínimo 5 por producto</span>
+    </button>
+    <button id="rt" type="button" class="mode active" onclick="setMode('retail')">
+      🛒 Minorista<br><span class="small">Cliente particular</span>
+    </button>
   </div>
 
-  <input id="search" class="search" placeholder="🔎 Buscar repuesto..." oninput="render()">
+  <input id="search" class="search" type="search" placeholder="🔎 Buscar repuesto..." oninput="render()">
   <div id="filters" class="filters"></div>
   <section id="grid" class="grid"></section>
+  <p id="empty" class="notice" style="display:none">Sin resultados para esa búsqueda.</p>
 
-  <button class="cart-toggle" onclick="openCart()">🛒 Carrito · <span id="floatingCount">0</span></button>
+  <button type="button" class="cart-toggle" onclick="openCart()">
+    🛒 Carrito · <span id="floatingCount">0</span>
+  </button>
 
   <div class="cart-overlay" id="cartOverlay" onclick="overlayClose(event)">
-    <section class="cart-modal">
-      <button class="cart-close" onclick="closeCart()" aria-label="Cerrar carrito">×</button>
-      <section class="cart">
-        <div class="carthead">
-          <h2>🛒 Carrito</h2>
-          <span id="count" class="small">0 unidades</span>
-        </div>
-        <div id="cartLines"><span class="small">Añade productos para preparar tu pedido.</span></div>
-        <div class="totals">Total USD: $<span id="usd">0.00</span></div>
-        <div class="totals">Total CUP: <span id="cup">0</span> CUP</div>
-        <div class="small">Tasa aplicada: <span id="applied">685</span> CUP/USD</div>
-        <button class="wa" onclick="sendWhatsApp()">📲 Enviar pedido completo por WhatsApp</button>
-        <button class="clear" onclick="clearCart()">Vaciar carrito</button>
-      </section>
+    <section class="cart-modal" onclick="event.stopPropagation()">
+      <button type="button" class="cart-close" onclick="closeCart()" aria-label="Cerrar carrito">×</button>
+      <div class="carthead">
+        <h2>🛒 Carrito</h2>
+        <span id="count" class="small">0 unidades</span>
+      </div>
+      <div id="cartLines"><span class="small">Añade productos para preparar tu pedido.</span></div>
+      <div class="totals">Total USD: $<span id="usd">0.00</span></div>
+      <div class="totals">Total CUP: <span id="cup">0</span> CUP</div>
+      <div class="small">Tasa aplicada: <span id="applied">685</span> CUP/USD</div>
+      <button type="button" class="wa" onclick="sendWhatsApp()">📲 Enviar pedido completo por WhatsApp</button>
+      <button type="button" class="clear" onclick="clearCart()">Vaciar carrito</button>
     </section>
   </div>
+
 </main>
 
 <footer>
