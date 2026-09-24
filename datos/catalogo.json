@@ -1,4 +1,6 @@
 {
+  "version": "20260924-1326",
+  "generated_at": "2026-09-24T13:26:42",
   "total": 89,
   "items": [
     {
@@ -9,7 +11,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 1.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-001.jpg"
     },
     {
@@ -20,7 +22,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-002.jpg"
     },
     {
@@ -53,7 +55,7 @@
       "stock": 1,
       "disponible": true,
       "retail": 3.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-005.jpg"
     },
     {
@@ -64,7 +66,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 1.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-006.jpg"
     },
     {
@@ -75,7 +77,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 2.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-007.jpg"
     },
     {
@@ -86,7 +88,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-008.jpg"
     },
     {
@@ -97,7 +99,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-009.jpg"
     },
     {
@@ -108,7 +110,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 7.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-010.jpg"
     },
     {
@@ -119,7 +121,7 @@
       "stock": 43,
       "disponible": true,
       "retail": 7.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-011.jpg"
     },
     {
@@ -130,7 +132,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-012.jpg"
     },
     {
@@ -141,7 +143,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-013.jpg"
     },
     {
@@ -152,7 +154,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 10.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-014.jpg"
     },
     {
@@ -163,7 +165,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 30.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-015.jpg"
     },
     {
@@ -174,7 +176,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 5.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-016.jpg"
     },
     {
@@ -185,7 +187,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 5.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-017.jpg"
     },
     {
@@ -196,7 +198,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 10.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-018.jpg"
     },
     {
@@ -218,7 +220,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 12.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-020.jpg"
     },
     {
@@ -229,7 +231,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 12.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-021.jpg"
     },
     {
@@ -240,7 +242,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 12.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-022.jpg"
     },
     {
@@ -251,7 +253,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-023.jpg"
     },
     {
@@ -262,7 +264,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 2.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-024.jpg"
     },
     {
@@ -273,7 +275,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 8.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-025.jpg"
     },
     {
@@ -284,7 +286,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 10.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-026.jpg"
     },
     {
@@ -295,7 +297,7 @@
       "stock": 2,
       "disponible": true,
       "retail": 17.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-027.jpg"
     },
     {
@@ -306,7 +308,7 @@
       "stock": 6,
       "disponible": true,
       "retail": 10.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-028.jpg"
     },
     {
@@ -317,7 +319,7 @@
       "stock": 1,
       "disponible": true,
       "retail": 9.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-029.jpg"
     },
     {
@@ -328,7 +330,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 5.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-030.jpg"
     },
     {
@@ -339,7 +341,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 15.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-031.jpg"
     },
     {
@@ -350,7 +352,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 0.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-032.jpg"
     },
     {
@@ -361,7 +363,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-033.jpg"
     },
     {
@@ -383,7 +385,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 23.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-035.jpg"
     },
     {
@@ -394,7 +396,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 14.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-036.jpg"
     },
     {
@@ -405,7 +407,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 45.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-037.jpg"
     },
     {
@@ -416,7 +418,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 8.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-038.jpg"
     },
     {
@@ -427,7 +429,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 10.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-039.jpg"
     },
     {
@@ -438,7 +440,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 6.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-040.jpg"
     },
     {
@@ -449,7 +451,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-041.jpg"
     },
     {
@@ -460,7 +462,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 7.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-042.jpg"
     },
     {
@@ -471,7 +473,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-043.jpg"
     },
     {
@@ -482,7 +484,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 1.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-044.jpg"
     },
     {
@@ -493,7 +495,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-045.jpg"
     },
     {
@@ -504,7 +506,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 6.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-046.jpg"
     },
     {
@@ -515,7 +517,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-047.jpg"
     },
     {
@@ -526,7 +528,7 @@
       "stock": 1,
       "disponible": true,
       "retail": 10.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-048.jpg"
     },
     {
@@ -548,7 +550,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 4.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-050.jpg"
     },
     {
@@ -559,7 +561,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-051.jpg"
     },
     {
@@ -581,7 +583,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 11.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-053.jpg"
     },
     {
@@ -592,7 +594,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 15.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-054.jpg"
     },
     {
@@ -603,7 +605,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-055.jpg"
     },
     {
@@ -625,7 +627,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-057.jpg"
     },
     {
@@ -636,7 +638,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-058.jpg"
     },
     {
@@ -647,7 +649,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-059.jpg"
     },
     {
@@ -658,7 +660,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 2.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-060.jpg"
     },
     {
@@ -669,7 +671,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-061.jpg"
     },
     {
@@ -680,7 +682,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-062.jpg"
     },
     {
@@ -691,7 +693,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-063.jpg"
     },
     {
@@ -702,7 +704,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-064.jpg"
     },
     {
@@ -713,7 +715,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-065.jpg"
     },
     {
@@ -724,7 +726,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-066.jpg"
     },
     {
@@ -735,7 +737,7 @@
       "stock": 1,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-067.jpg"
     },
     {
@@ -757,7 +759,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 6.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-069.jpg"
     },
     {
@@ -768,7 +770,7 @@
       "stock": 1,
       "disponible": true,
       "retail": 13.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-070.jpg"
     },
     {
@@ -779,7 +781,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 13.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-071.jpg"
     },
     {
@@ -790,7 +792,7 @@
       "stock": 4,
       "disponible": true,
       "retail": 1.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-072.jpg"
     },
     {
@@ -801,7 +803,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-073.jpg"
     },
     {
@@ -812,7 +814,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-074.jpg"
     },
     {
@@ -823,7 +825,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-075.jpg"
     },
     {
@@ -834,7 +836,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-076.jpg"
     },
     {
@@ -845,7 +847,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 5.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-077.jpg"
     },
     {
@@ -856,7 +858,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 4.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-078.jpg"
     },
     {
@@ -867,7 +869,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-079.jpg"
     },
     {
@@ -878,7 +880,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-080.jpg"
     },
     {
@@ -889,7 +891,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-081.jpg"
     },
     {
@@ -900,7 +902,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-082.jpg"
     },
     {
@@ -911,7 +913,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-083.jpg"
     },
     {
@@ -922,7 +924,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-084.jpg"
     },
     {
@@ -933,7 +935,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 2.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-085.jpg"
     },
     {
@@ -944,7 +946,7 @@
       "stock": 0,
       "disponible": true,
       "retail": 3.5,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-086.jpg"
     },
     {
@@ -955,7 +957,7 @@
       "stock": 16,
       "disponible": true,
       "retail": 0.3,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-087.jpg"
     },
     {
@@ -966,7 +968,7 @@
       "stock": 0,
       "disponible": false,
       "retail": 3.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-088.jpg"
     },
     {
@@ -977,7 +979,7 @@
       "stock": 12,
       "disponible": true,
       "retail": 6.0,
-      "wholesale": NaN,
+      "wholesale": null,
       "photo": "fotos/MG-089.jpg"
     }
   ]
