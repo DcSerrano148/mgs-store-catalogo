@@ -1,114 +1,36 @@
-import pandas as pd
-import json
-import re
-from pathlib import Path
-from datetime import datetime
+name: Actualizar catalogo JSON
 
-CATALOGO_CSV = Path("datos/catalogo.csv")
-CATALOGO_XLSX = Path("datos/catalogo.xlsx")
-PRECIOS_CSV = Path("datos/precios.csv")
-PRECIOS_XLSX = Path("datos/precios.xlsx")
-OUT = Path("datos/catalogo.json")
-OUT.parent.mkdir(parents=True, exist_ok=True)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'datos/catalogo.csv'
+      - 'datos/precios.csv'
+      - 'scripts/generar_catalogo.py'
+  workflow_dispatch:
 
+permissions:
+  contents: write
 
-def clean(v):
-    if v is None:
-        return ""
-    try:
-        if pd.isna(v):
-            return ""
-    except (TypeError, ValueError):
-        pass
-    return re.sub(r"\s+", " ", str(v)).strip()
+jobs:
+  generar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-def leer_tabla(csv_path, xlsx_path):
-    if csv_path.exists():
-        df = pd.read_csv(csv_path, encoding="utf-8")
-        fuente = csv_path.name
-    elif xlsx_path.exists():
-        df = pd.read_excel(xlsx_path)
-        fuente = xlsx_path.name
-    else:
-        return None, None
-    df.columns = [str(c).strip().lower() for c in df.columns]
-    return df, fuente
+      - run: pip install pandas
 
+      - run: python scripts/generar_catalogo.py
 
-cat_df, cat_fuente = leer_tabla(CATALOGO_CSV, CATALOGO_XLSX)
-if cat_df is None:
-    raise SystemExit("No encontre datos/catalogo.csv ni datos/catalogo.xlsx")
-
-pre_df, pre_fuente = leer_tabla(PRECIOS_CSV, PRECIOS_XLSX)
-precios = {}
-if pre_df is None:
-    print("Aviso: no encontre precios. Los precios quedaran en null.")
-else:
-    for _, r in pre_df.iterrows():
-        code = clean(r.get("codigo"))
-        if not code:
-            continue
-        minor = pd.to_numeric(r.get("precio_minorista_usd"), errors="coerce")
-        mayor = pd.to_numeric(r.get("precio_mayorista_usd"), errors="coerce")
-        precios[code] = {
-            "retail": float(minor) if pd.notna(minor) else None,
-            "wholesale": float(mayor) if pd.notna(mayor) else None,
-        }
-    print("Precios cargados: " + str(len(precios)) + " desde " + pre_fuente)
-
-
-items = []
-issues = []
-seen = set()
-
-for i, r in cat_df.iterrows():
-    name = clean(r.get("producto"))
-    if not name or name.lower() == "nan":
-        continue
-
-    code = clean(r.get("codigo"))
-    if not code or code in seen:
-        issues.append("Fila " + str(i + 2) + ": codigo vacio o duplicado (" + code + ")")
-        continue
-    seen.add(code)
-
-    unidades = pd.to_numeric(r.get("unidades"), errors="coerce")
-    disp = clean(r.get("disponibilidad")).lower() == "disponible"
-    p = precios.get(code, {"retail": None, "wholesale": None})
-
-    items.append({
-        "code": code,
-        "name": name,
-        "cat": clean(r.get("categoria")) or "Accesorios y tornilleria",
-        "seccion": clean(r.get("seccion")),
-        "stock": int(unidades) if pd.notna(unidades) else 0,
-        "disponible": disp,
-        "retail": p["retail"],
-        "wholesale": p["wholesale"],
-        "photo": clean(r.get("foto")) or ("fotos/" + code + ".jpg"),
-    })
-
-    if p["retail"] is None:
-        issues.append("Sin precio minorista: " + code)
-    if p["wholesale"] is None:
-        issues.append("Sin precio mayorista: " + code)
-
-
-payload = {
-    "version": datetime.now().strftime("%Y%m%d-%H%M"),
-    "generated_at": datetime.now().isoformat(timespec="seconds"),
-    "total": len(items),
-    "items": items,
-}
-OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
-print("")
-print("Catalogo generado: " + str(len(items)) + " productos -> " + str(OUT))
-print("Sin precio minorista: " + str(sum(1 for x in items if x["retail"] is None)))
-print("Sin precio mayorista: " + str(sum(1 for x in items if x["wholesale"] is None)))
-print("Disponibles: " + str(sum(1 for x in items if x["disponible"])))
-if issues:
-    print("Observaciones (" + str(len(issues)) + "):")
-    for x in issues[:15]:
-        print("  - " + x)
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add datos/catalogo.json
+          git diff --staged --quiet || git commit -m "Auto: regenerar catalogo [skip ci]"
+          git diff --staged --quiet || git push
