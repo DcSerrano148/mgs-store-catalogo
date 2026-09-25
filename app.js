@@ -19,7 +19,7 @@ const norm = s => String(s)
 
 // ---------- Persistencia ----------
 function loadState() {
-  try { cart = JSON.parse(localStorage.getItem('mg_cart') || '{}'); } catch { cart = {}; }
+  try { cart = JSON.parse(localStorage.getItem('mg_cart') || '{}'); } catch (e) { cart = {}; }
   const r = localStorage.getItem('mg_rate');
   if (r && Number(r) > 0) calc = Number(r);
 }
@@ -38,6 +38,7 @@ function applyRate() {
   saveRate();
   $('calcRate').textContent = v + ' CUP/USD';
   render();
+  renderFeatured();
 }
 
 // ---------- Carga de datos ----------
@@ -69,12 +70,12 @@ function setMode(m) {
 function categories() {
   const cs = ['Todas', ...new Set(PRODUCTS.map(p => p.cat).filter(Boolean))].sort();
   $('filters').innerHTML = cs.map(c =>
-    `<button type="button" class="${filter === c ? 'active' : ''}" onclick="setFilter('${c.replace(/'/g, "\\'")}')">${c}</button>`
+    '<button type="button" class="' + (filter === c ? 'active' : '') + '" onclick="setFilter(\'' + c.replace(/'/g, "\\'") + '\')">' + c + '</button>'
   ).join('');
 }
 function setFilter(c) { filter = c; render(); }
 
-// ---------- Card HTML (reutilizable) ----------
+// ---------- Card HTML ----------
 function cardHTML(p, opts) {
   opts = opts || {};
   const featured = opts.featured === true;
@@ -84,43 +85,43 @@ function cardHTML(p, opts) {
     ? '🟢 ' + p.stock + ' disponibles'
     : (p.disponible ? '🟡 Consultar' : '⚪ Agotado');
   const priceHTML = price != null
-    ? `<div class="price">$${fmt(price)} USD</div><div class="cup">$${fmt(price * calc)} CUP</div>`
-    : `<div class="small">Precio no definido</div>`;
+    ? '<div class="price">$' + fmt(price) + ' USD</div><div class="cup">$' + fmt(price * calc) + ' CUP</div>'
+    : '<div class="small">Precio no definido</div>';
 
   if (featured) {
-    const featPrice = price != null ? `<div class="featured-price">$${fmt(price)}</div>` : '';
-    return `<article class="featured-card" onclick="add('${p.code}')">
-      <div class="pic">
-        <img src="${p.photo}" alt="${p.name}" loading="lazy"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-        <span class="noimg" style="display:none">${p.code}</span>
-      </div>
-      <div class="featured-body">
-        <div class="code">${p.code}</div>
-        <h3>${p.name}</h3>
-        ${featPrice}
-      </div>
-    </article>`;
+    const featPrice = price != null ? '<div class="featured-price">$' + fmt(price) + '</div>' : '';
+    return '<article class="featured-card" onclick="add(\'' + p.code + '\')">' +
+      '<div class="pic">' +
+        '<img src="' + p.photo + '" alt="' + p.name + '" loading="lazy" ' +
+             'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
+        '<span class="noimg" style="display:none">' + p.code + '</span>' +
+      '</div>' +
+      '<div class="featured-body">' +
+        '<div class="code">' + p.code + '</div>' +
+        '<h3>' + p.name + '</h3>' +
+        featPrice +
+      '</div>' +
+    '</article>';
   }
 
-  return `<article class="card">
-    <div class="pic">
-      <img src="${p.photo}" alt="${p.name}" loading="lazy" width="235" height="180"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-      <span class="noimg" style="display:none">Foto pendiente</span>
-    </div>
-    <div class="body">
-      <div class="code">${p.code}</div>
-      <h3>${p.name}</h3>
-      ${priceHTML}
-      ${mode === 'wholesale' ? '<span class="badge">Mínimo 5 unidades</span>' : ''}
-      <div class="stock">${stockLabel}</div>
-      <button type="button" class="add ${can ? '' : 'disabled'}" ${can ? '' : 'disabled'}
-              onclick="add('${p.code}')">
-        ${can ? '🛒 Añadir al carrito' : 'No disponible'}
-      </button>
-    </div>
-  </article>`;
+  return '<article class="card">' +
+    '<div class="pic">' +
+      '<img src="' + p.photo + '" alt="' + p.name + '" loading="lazy" width="235" height="180" ' +
+           'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
+      '<span class="noimg" style="display:none">Foto pendiente</span>' +
+    '</div>' +
+    '<div class="body">' +
+      '<div class="code">' + p.code + '</div>' +
+      '<h3>' + p.name + '</h3>' +
+      priceHTML +
+      (mode === 'wholesale' ? '<span class="badge">Mínimo 5 unidades</span>' : '') +
+      '<div class="stock">' + stockLabel + '</div>' +
+      '<button type="button" class="add ' + (can ? '' : 'disabled') + '" ' + (can ? '' : 'disabled') + ' ' +
+              'onclick="add(\'' + p.code + '\')">' +
+        (can ? '🛒 Añadir al carrito' : 'No disponible') +
+      '</button>' +
+    '</div>' +
+  '</article>';
 }
 
 // ---------- Render principal ----------
@@ -147,18 +148,18 @@ function render() {
   cartRender();
 }
 
-// ---------- Render destacados ----------
+// ---------- Destacados ----------
 function renderFeatured() {
   const section = $('featuredSection');
   if (!section) return;
 
   const featured = PRODUCTS.filter(p => {
     if (!p.seccion) return false;
-    if (!FEATURED_SECTIONS.some(s => p.seccion.includes(s))) return false;
+    if (!FEATURED_SECTIONS.some(s => p.seccion.indexOf(s) !== -1)) return false;
     if (!p.disponible && p.stock === 0) return false;
     if (mode === 'wholesale' && p.wholesale == null) return false;
     return true;
-  }).slice(0, 10);
+  }).slice(0, 12);
 
   if (!featured.length) {
     section.style.display = 'none';
@@ -166,6 +167,45 @@ function renderFeatured() {
   }
   section.style.display = 'block';
   $('featuredGrid').innerHTML = featured.map(p => cardHTML(p, { featured: true })).join('');
+
+  requestAnimationFrame(() => {
+    updateFeaturedArrows();
+  });
+}
+
+// ---------- Navegación del carrusel ----------
+function scrollFeatured(direction) {
+  const grid = $('featuredGrid');
+  if (!grid) return;
+  const card = grid.querySelector('.featured-card');
+  if (!card) return;
+  const cardWidth = card.offsetWidth + 10;
+  grid.scrollBy({ left: direction * cardWidth * 2, behavior: 'smooth' });
+}
+
+function updateFeaturedArrows() {
+  const grid = $('featuredGrid');
+  if (!grid) return;
+  const wrap = grid.parentElement;
+  const prev = $('featPrev');
+  const next = $('featNext');
+  if (!wrap || !prev || !next) return;
+
+  const atStart = grid.scrollLeft <= 2;
+  const atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 2;
+
+  prev.disabled = atStart;
+  next.disabled = atEnd;
+
+  wrap.classList.toggle('has-left', !atStart);
+  wrap.classList.toggle('has-right', !atEnd);
+}
+
+function initFeaturedNav() {
+  const grid = $('featuredGrid');
+  if (!grid) return;
+  grid.addEventListener('scroll', updateFeaturedArrows, { passive: true });
+  window.addEventListener('resize', updateFeaturedArrows);
 }
 
 // ---------- Carrito ----------
@@ -200,21 +240,23 @@ function overlayClose(e) { if (e.target.id === 'cartOverlay') closeCart(); }
 
 function cartRender() {
   let html = '', usd = 0, count = 0;
-  for (const [c, q] of Object.entries(cart)) {
+  for (const c in cart) {
+    if (!Object.prototype.hasOwnProperty.call(cart, c)) continue;
+    const q = cart[c];
     const p = PRODUCTS.find(x => x.code === c);
     if (!p) continue;
     const price = mode === 'wholesale' ? p.wholesale : p.retail;
     if (price == null) continue;
     usd += price * q;
     count += q;
-    html += `<div class="line">
-      <span>${q} × ${p.name}</span>
-      <span>$${fmt(price * q)}</span>
-      <span class="qty">
-        <button type="button" onclick="change('${c}',-1)">−</button>
-        <button type="button" onclick="change('${c}',1)">+</button>
-      </span>
-    </div>`;
+    html += '<div class="line">' +
+      '<span>' + q + ' × ' + p.name + '</span>' +
+      '<span>$' + fmt(price * q) + '</span>' +
+      '<span class="qty">' +
+        '<button type="button" onclick="change(\'' + c + '\',-1)">−</button>' +
+        '<button type="button" onclick="change(\'' + c + '\',1)">+</button>' +
+      '</span>' +
+    '</div>';
   }
   $('cartLines').innerHTML = html || '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>Añade productos para preparar tu pedido</p></div>';
   $('count').textContent = count + ' unidades';
@@ -228,7 +270,9 @@ function cartRender() {
 function sendWhatsApp() {
   const rows = [];
   let usd = 0;
-  for (const [c, q] of Object.entries(cart)) {
+  for (const c in cart) {
+    if (!Object.prototype.hasOwnProperty.call(cart, c)) continue;
+    const q = cart[c];
     const p = PRODUCTS.find(x => x.code === c);
     if (!p) continue;
     const price = mode === 'wholesale' ? p.wholesale : p.retail;
@@ -238,7 +282,7 @@ function sendWhatsApp() {
       return;
     }
     usd += price * q;
-    rows.push(`${q} x ${p.name} [${p.code}] — ${fmt(price * q)} USD`);
+    rows.push(q + ' x ' + p.name + ' [' + p.code + '] — ' + fmt(price * q) + ' USD');
   }
   if (!rows.length) return alert('El carrito está vacío.');
 
@@ -254,13 +298,13 @@ function sendWhatsApp() {
   window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
-// ---------- Modal Cómo comprar ----------
+// ---------- Cómo comprar ----------
 function openHowto() { $('howtoOverlay').classList.add('open'); }
 function closeHowto() { $('howtoOverlay').classList.remove('open'); }
 function overlayHowtoClose(e) { if (e.target.id === 'howtoOverlay') closeHowto(); }
 
 // ---------- Init ----------
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') {
     closeCart();
     closeHowto();
@@ -268,4 +312,5 @@ document.addEventListener('keydown', e => {
 });
 loadState();
 loadRate();
+initFeaturedNav();
 load();
