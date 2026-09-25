@@ -1,15 +1,14 @@
 /* MG's Store — catálogo online */
 'use strict';
 
-// ---------- Estado ----------
 let PRODUCTS = [];
 let mode = 'retail';
 let filter = 'Todas';
 let cart = {};
 let calc = 685;
 const WA_NUMBER = '5354800976';
+const FEATURED_SECTIONS = ['🔥 Más buscados', '⚡ Repuestos disponibles'];
 
-// ---------- Utilidades ----------
 const $ = id => document.getElementById(id);
 const fmt = n => new Intl.NumberFormat('es-CU', {
   minimumFractionDigits: 2, maximumFractionDigits: 2
@@ -41,7 +40,7 @@ function applyRate() {
   render();
 }
 
-// ---------- Datos ----------
+// ---------- Carga de datos ----------
 async function load() {
   try {
     const r = await fetch('datos/catalogo.json?v=' + Date.now());
@@ -50,9 +49,10 @@ async function load() {
     PRODUCTS = Array.isArray(d) ? d : (d.items || []);
     document.title = "MG's Store | " + PRODUCTS.length + " repuestos";
     render();
+    renderFeatured();
   } catch (e) {
     console.error(e);
-    $('grid').innerHTML = '<p class="notice">No se pudo cargar el catálogo. Verifica tu conexión.</p>';
+    $('grid').innerHTML = '<p class="notice" style="grid-column:1/-1">No se pudo cargar el catálogo. Verifica tu conexión e intenta de nuevo.</p>';
   }
 }
 
@@ -62,6 +62,7 @@ function setMode(m) {
   $('wh').classList.toggle('active', m === 'wholesale');
   $('rt').classList.toggle('active', m === 'retail');
   render();
+  renderFeatured();
 }
 
 // ---------- Filtros ----------
@@ -73,7 +74,56 @@ function categories() {
 }
 function setFilter(c) { filter = c; render(); }
 
-// ---------- Render ----------
+// ---------- Card HTML (reutilizable) ----------
+function cardHTML(p, opts) {
+  opts = opts || {};
+  const featured = opts.featured === true;
+  const price = mode === 'wholesale' ? p.wholesale : p.retail;
+  const can = price != null && (p.disponible || p.stock > 0);
+  const stockLabel = p.stock > 0
+    ? '🟢 ' + p.stock + ' disponibles'
+    : (p.disponible ? '🟡 Consultar' : '⚪ Agotado');
+  const priceHTML = price != null
+    ? `<div class="price">$${fmt(price)} USD</div><div class="cup">$${fmt(price * calc)} CUP</div>`
+    : `<div class="small">Precio no definido</div>`;
+
+  if (featured) {
+    const featPrice = price != null ? `<div class="featured-price">$${fmt(price)}</div>` : '';
+    return `<article class="featured-card" onclick="add('${p.code}')">
+      <div class="pic">
+        <img src="${p.photo}" alt="${p.name}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="noimg" style="display:none">${p.code}</span>
+      </div>
+      <div class="featured-body">
+        <div class="code">${p.code}</div>
+        <h3>${p.name}</h3>
+        ${featPrice}
+      </div>
+    </article>`;
+  }
+
+  return `<article class="card">
+    <div class="pic">
+      <img src="${p.photo}" alt="${p.name}" loading="lazy" width="235" height="180"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="noimg" style="display:none">Foto pendiente</span>
+    </div>
+    <div class="body">
+      <div class="code">${p.code}</div>
+      <h3>${p.name}</h3>
+      ${priceHTML}
+      ${mode === 'wholesale' ? '<span class="badge">Mínimo 5 unidades</span>' : ''}
+      <div class="stock">${stockLabel}</div>
+      <button type="button" class="add ${can ? '' : 'disabled'}" ${can ? '' : 'disabled'}
+              onclick="add('${p.code}')">
+        ${can ? '🛒 Añadir al carrito' : 'No disponible'}
+      </button>
+    </div>
+  </article>`;
+}
+
+// ---------- Render principal ----------
 function render() {
   categories();
   const q = norm($('search').value || '');
@@ -93,45 +143,40 @@ function render() {
     return;
   }
   $('empty').style.display = 'none';
-
-  $('grid').innerHTML = list.map(p => {
-    const price = mode === 'wholesale' ? p.wholesale : p.retail;
-    const can = price != null && (p.disponible || p.stock > 0);
-    const stockLabel = p.stock > 0
-      ? '🟢 ' + p.stock + ' disponibles'
-      : (p.disponible ? '🟡 Consultar disponibilidad' : '⚪ Agotado');
-    const badgeWH = mode === 'wholesale' ? '<span class="badge">Mínimo 5 unidades</span>' : '';
-    const priceHTML = price != null
-      ? `<div class="price">$${fmt(price)} USD</div><div class="cup">$${fmt(price * calc)} CUP</div>`
-      : `<div class="small">Precio ${mode === 'wholesale' ? 'mayorista' : 'minorista'} no definido</div>`;
-
-    return `<article class="card">
-      <div class="pic">
-        <img src="${p.photo}" alt="${p.name}" loading="lazy" width="235" height="180"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-        <span class="noimg" style="display:none">Foto pendiente</span>
-      </div>
-      <div class="body">
-        <div class="code">${p.code}</div>
-        <h3>${p.name}</h3>
-        ${priceHTML}
-        ${badgeWH}
-        <div class="stock">${stockLabel}</div>
-        <button type="button" class="add ${can ? '' : 'disabled'}" ${can ? '' : 'disabled'}
-                onclick="add('${p.code}')">
-          ${can ? '🛒 Añadir al carrito' : 'No disponible'}
-        </button>
-      </div>
-    </article>`;
-  }).join('');
-
+  $('grid').innerHTML = list.map(p => cardHTML(p)).join('');
   cartRender();
+}
+
+// ---------- Render destacados ----------
+function renderFeatured() {
+  const section = $('featuredSection');
+  if (!section) return;
+
+  const featured = PRODUCTS.filter(p => {
+    if (!p.seccion) return false;
+    if (!FEATURED_SECTIONS.some(s => p.seccion.includes(s))) return false;
+    if (!p.disponible && p.stock === 0) return false;
+    if (mode === 'wholesale' && p.wholesale == null) return false;
+    return true;
+  }).slice(0, 10);
+
+  if (!featured.length) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  $('featuredGrid').innerHTML = featured.map(p => cardHTML(p, { featured: true })).join('');
 }
 
 // ---------- Carrito ----------
 function add(code) {
   const p = PRODUCTS.find(x => x.code === code);
   if (!p) return;
+  const price = mode === 'wholesale' ? p.wholesale : p.retail;
+  if (price == null) {
+    alert('Este producto no tiene precio en la modalidad actual.');
+    return;
+  }
   cart[code] = (cart[code] || 0) + 1;
   saveCart();
   cartRender();
@@ -171,7 +216,7 @@ function cartRender() {
       </span>
     </div>`;
   }
-  $('cartLines').innerHTML = html || '<span class="small">Añade productos para preparar tu pedido.</span>';
+  $('cartLines').innerHTML = html || '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>Añade productos para preparar tu pedido</p></div>';
   $('count').textContent = count + ' unidades';
   $('floatingCount').textContent = count;
   $('usd').textContent = fmt(usd);
@@ -209,8 +254,18 @@ function sendWhatsApp() {
   window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
+// ---------- Modal Cómo comprar ----------
+function openHowto() { $('howtoOverlay').classList.add('open'); }
+function closeHowto() { $('howtoOverlay').classList.remove('open'); }
+function overlayHowtoClose(e) { if (e.target.id === 'howtoOverlay') closeHowto(); }
+
 // ---------- Init ----------
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeCart();
+    closeHowto();
+  }
+});
 loadState();
 loadRate();
 load();
