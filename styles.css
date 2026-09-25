@@ -258,7 +258,7 @@ input{font:inherit}
 }
 .rate-link:hover{background:#ffedd5}
 
-/* ---------- TRUST BADGES ---------- */
+/* ---------- TRUST ---------- */
 .trust{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -359,16 +359,90 @@ input{font:inherit}
 
 /* ---------- FEATURED ---------- */
 .featured-section{margin:8px 0 0}
+.featured-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:22px 4px 12px;
+}
+.featured-header .section-title{margin:0}
+.featured-nav{
+  display:flex;
+  gap:6px;
+}
+.featured-arrow{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:var(--surface);
+  border:1px solid var(--line);
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all var(--t);
+}
+.featured-arrow:hover{
+  background:var(--ink);
+  color:#fff;
+  border-color:var(--ink);
+  transform:scale(1.05);
+}
+.featured-arrow:active{transform:scale(.95)}
+.featured-arrow:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+  transform:none;
+}
+.featured-arrow:disabled:hover{
+  background:var(--surface);
+  color:var(--ink);
+  border-color:var(--line);
+}
+
+.featured-wrap{position:relative}
+.featured-wrap::before,
+.featured-wrap::after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:12px;
+  width:40px;
+  pointer-events:none;
+  z-index:2;
+  opacity:0;
+  transition:opacity var(--t);
+}
+.featured-wrap::before{
+  left:0;
+  background:linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+}
+.featured-wrap::after{
+  right:0;
+  background:linear-gradient(270deg, var(--bg) 0%, transparent 100%);
+}
+.featured-wrap.has-left::before{opacity:1}
+.featured-wrap.has-right::after{opacity:1}
+
 .featured-grid{
   display:flex;
   gap:10px;
   overflow-x:auto;
   padding:4px 2px 12px;
   -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
+  scroll-behavior:smooth;
   scroll-snap-type:x mandatory;
+  scrollbar-width:thin;
+  scrollbar-color:var(--line-2) transparent;
 }
-.featured-grid::-webkit-scrollbar{display:none}
+.featured-grid::-webkit-scrollbar{height:6px}
+.featured-grid::-webkit-scrollbar-track{background:transparent}
+.featured-grid::-webkit-scrollbar-thumb{
+  background:var(--line-2);
+  border-radius:3px;
+}
+.featured-grid::-webkit-scrollbar-thumb:hover{background:var(--muted-2)}
+
 .featured-card{
   flex:0 0 170px;
   background:var(--surface);
@@ -498,7 +572,7 @@ input{font:inherit}
   box-shadow:var(--shadow-sm);
 }
 
-/* ---------- GRID + CARDS ---------- */
+/* ---------- GRID ---------- */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
@@ -878,7 +952,7 @@ input{font:inherit}
 }
 .clear:hover{color:var(--danger);border-color:#fecaca;background:#fef2f2}
 
-/* ---------- HOWTO MODAL ---------- */
+/* ---------- HOWTO ---------- */
 .howto-modal{padding:26px 22px 22px}
 .howto-title{
   font-size:24px;
@@ -1032,6 +1106,8 @@ input{font:inherit}
   .modes{grid-template-columns:1fr;gap:8px}
   .mode{padding:13px}
 
+  .featured-header{margin:18px 4px 10px}
+  .featured-nav{display:none}
   .featured-card{flex:0 0 150px}
   .featured-card .pic{height:105px}
   .featured-body{padding:8px 10px 10px}
