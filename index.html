@@ -6,13 +6,25 @@
 <meta name="theme-color" content="#0f172a">
 <title>MG's Store | Repuestos para motos eléctricas en La Habana</title>
 <meta name="description" content="Repuestos y piezas para motos eléctricas en La Habana. Frenos, luces, sistema eléctrico, carrocería. Mayorista y minorista. WhatsApp +53 5480 0976.">
+
+<!-- OG para WhatsApp / Facebook -->
 <meta property="og:title" content="MG's Store | Repuestos para motos eléctricas">
-<meta property="og:description" content="Catálogo mayorista y minorista. La Habana, Cuba.">
+<meta property="og:description" content="Catálogo mayorista y minorista. La Habana, Cuba. Envíos y garantía.">
+<meta property="og:image" content="https://mgstore.marcserd.workers.dev/fotos/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://mgstore.marcserd.workers.dev/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_CU">
-<link rel="icon" href="fotos/favicon.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Favicon + PWA -->
+<link rel="icon" href="fotos/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="fotos/favicon.png">
 <link rel="manifest" href="manifest.webmanifest">
+
 <link rel="stylesheet" href="styles.css">
+
 <script type="application/ld+json">
 {
   "@context":"https://schema.org","@type":"Store",
@@ -42,16 +54,22 @@
     </h1>
     <p class="hero-sub">Mayorista y minorista · Guanabacoa, La Habana</p>
 
-    <a class="hero-cta" href="https://wa.me/5354800976" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.4 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.7-.6-2.8-1.2-4.6-4-4.7-4.2-.2-.2-1.2-1.5-1.2-2.9 0-1.3.7-2 1-2.2.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.2.1.3 0 .5-.1.2-.1.3-.3.5l-.4.5c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.6-.2.2.1 1.5.7 1.7.8.2.1.4.2.4.3.1.2.1.9-.1 1.5Z"/></svg>
-      Escríbenos ahora
-    </a>
+    <div class="hero-actions">
+      <a class="hero-cta" href="https://wa.me/5354800976" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.4 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.7-.6-2.8-1.2-4.6-4-4.7-4.2-.2-.2-1.2-1.5-1.2-2.9 0-1.3.7-2 1-2.2.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.2.1.3 0 .5-.1.2-.1.3-.3.5l-.4.5c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.6-.2.2.1 1.5.7 1.7.8.2.1.4.2.4.3.1.2.1.9-.1 1.5Z"/></svg>
+        Escríbenos
+      </a>
+      <button type="button" class="hero-cta hero-cta-ghost" onclick="openHowto()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        Cómo comprar
+      </button>
+    </div>
   </div>
 </header>
 
 <main class="wrap">
 
-  <!-- Barra de tasa + contacto -->
+  <!-- Tasa -->
   <section class="rate" aria-label="Tasa de cambio">
     <div class="rate-info">
       <span class="rate-label">Tasa de cálculo</span>
@@ -70,7 +88,39 @@
     </div>
   </section>
 
-  <!-- Selector de modo -->
+  <!-- Señales de confianza -->
+  <section class="trust" aria-label="Información de confianza">
+    <div class="trust-item">
+      <div class="trust-icon">🚚</div>
+      <div class="trust-text">
+        <strong>Entregas</strong>
+        <span>La Habana</span>
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🔧</div>
+      <div class="trust-text">
+        <strong>Garantía</strong>
+        <span>30 días</span>
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">💵</div>
+      <div class="trust-text">
+        <strong>Pago</strong>
+        <span>USD · MLC · CUP</span>
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">📞</div>
+      <div class="trust-text">
+        <strong>Atención</strong>
+        <span>WhatsApp directo</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modo -->
   <h2 class="section-title">¿Cómo deseas comprar?</h2>
   <div class="modes" role="tablist">
     <button id="wh" type="button" class="mode" onclick="setMode('wholesale')" role="tab">
@@ -94,7 +144,15 @@
     <span>Precios en <b>USD</b>. CUP calculado con la tasa. Mayorista: mínimo <b>5 unidades</b> por producto.</span>
   </div>
 
-  <!-- Buscador + filtros -->
+  <!-- Banner Más buscados -->
+  <section id="featuredSection" class="featured-section" style="display:none">
+    <h2 class="section-title">
+      <span class="section-flame">🔥</span> Más buscados
+    </h2>
+    <div id="featuredGrid" class="featured-grid"></div>
+  </section>
+
+  <!-- Buscador y filtros -->
   <div class="search-wrap">
     <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
     <input id="search" class="search" type="search" placeholder="Buscar repuesto, código..." oninput="render()" autocomplete="off">
@@ -102,16 +160,22 @@
 
   <div id="filters" class="filters"></div>
 
-  <section id="grid" class="grid" aria-live="polite"></section>
+  <!-- Grid -->
+  <section id="grid" class="grid" aria-live="polite">
+    <div class="loader">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Cargando catálogo...</div>
+    </div>
+  </section>
   <p id="empty" class="empty" style="display:none">Sin resultados para esa búsqueda.</p>
 
-  <!-- Botón flotante del carrito -->
+  <!-- Carrito flotante -->
   <button type="button" class="cart-toggle" onclick="openCart()" aria-label="Abrir carrito">
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
     <span class="cart-badge" id="floatingCount">0</span>
   </button>
 
-  <!-- Carrito modal -->
+  <!-- Modal carrito -->
   <div class="cart-overlay" id="cartOverlay" onclick="overlayClose(event)">
     <section class="cart-modal" onclick="event.stopPropagation()">
       <button type="button" class="cart-close" onclick="closeCart()" aria-label="Cerrar carrito">
@@ -153,6 +217,78 @@
         Enviar pedido por WhatsApp
       </button>
       <button type="button" class="clear" onclick="clearCart()">Vaciar carrito</button>
+    </section>
+  </div>
+
+  <!-- Modal Cómo comprar -->
+  <div class="cart-overlay" id="howtoOverlay" onclick="overlayHowtoClose(event)">
+    <section class="cart-modal howto-modal" onclick="event.stopPropagation()">
+      <button type="button" class="cart-close" onclick="closeHowto()" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+
+      <h2 class="howto-title">Cómo comprar</h2>
+      <p class="howto-sub">En 4 pasos tienes tus piezas en casa</p>
+
+      <div class="howto-steps">
+        <div class="howto-step">
+          <div class="howto-num">1</div>
+          <div>
+            <strong>Explora y elige</strong>
+            <p>Busca por nombre, filtra por categoría, cambia entre precio minorista y mayorista.</p>
+          </div>
+        </div>
+        <div class="howto-step">
+          <div class="howto-num">2</div>
+          <div>
+            <strong>Añade al carrito</strong>
+            <p>Ajusta cantidades. En mayorista el mínimo es 5 unidades por producto.</p>
+          </div>
+        </div>
+        <div class="howto-step">
+          <div class="howto-num">3</div>
+          <div>
+            <strong>Envía por WhatsApp</strong>
+            <p>Pulsa el botón verde. Tu pedido llega formateado con totales en USD y CUP.</p>
+          </div>
+        </div>
+        <div class="howto-step">
+          <div class="howto-num">4</div>
+          <div>
+            <strong>Confirma y recibe</strong>
+            <p>Coordinamos pago y entrega en La Habana. Recogida en Guanabacoa o a domicilio.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="howto-faq">
+        <h3>Preguntas frecuentes</h3>
+        <details>
+          <summary>¿Qué formas de pago aceptan?</summary>
+          <p>USD, MLC o CUP según la tasa del día (elTOQUE). Confirmamos por WhatsApp al cerrar el pedido.</p>
+        </details>
+        <details>
+          <summary>¿Hacen entregas a domicilio?</summary>
+          <p>Sí, en toda La Habana. La tarifa depende del municipio. Se confirma al confirmar el pedido.</p>
+        </details>
+        <details>
+          <summary>¿Qué garantía tienen las piezas?</summary>
+          <p>30 días por defecto de fábrica. No cubre daños por mal uso o instalación incorrecta.</p>
+        </details>
+        <details>
+          <summary>¿Puedo cambiar o devolver?</summary>
+          <p>Sí, dentro de los 7 días si la pieza está sin usar y en su empaque original. Escríbenos por WhatsApp.</p>
+        </details>
+        <details>
+          <summary>¿Cómo sé si la pieza es compatible con mi moto?</summary>
+          <p>Escríbenos con marca, modelo y voltaje de tu moto. Te asesoramos antes de comprar.</p>
+        </details>
+      </div>
+
+      <a class="wa" href="https://wa.me/5354800976" target="_blank" rel="noopener" style="text-decoration:none">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.4 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.7-.6-2.8-1.2-4.6-4-4.7-4.2-.2-.2-1.2-1.5-1.2-2.9 0-1.3.7-2 1-2.2.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.2.1.3 0 .5-.1.2-.1.3-.3.5l-.4.5c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.6-.2.2.1 1.5.7 1.7.8.2.1.4.2.4.3.1.2.1.9-.1 1.5Z"/></svg>
+        Tengo una duda
+      </a>
     </section>
   </div>
 
