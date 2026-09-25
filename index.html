@@ -7,7 +7,6 @@
 <title>MG's Store | Repuestos para motos eléctricas en La Habana</title>
 <meta name="description" content="Repuestos y piezas para motos eléctricas en La Habana. Frenos, luces, sistema eléctrico, carrocería. Mayorista y minorista. WhatsApp +53 5480 0976.">
 
-<!-- OG para WhatsApp / Facebook -->
 <meta property="og:title" content="MG's Store | Repuestos para motos eléctricas">
 <meta property="og:description" content="Catálogo mayorista y minorista. La Habana, Cuba. Envíos y garantía.">
 <meta property="og:image" content="https://mgstore.marcserd.workers.dev/fotos/og-image.jpg">
@@ -18,7 +17,6 @@
 <meta property="og:locale" content="es_CU">
 <meta name="twitter:card" content="summary_large_image">
 
-<!-- Favicon + PWA -->
 <link rel="icon" href="fotos/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="fotos/favicon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -69,7 +67,6 @@
 
 <main class="wrap">
 
-  <!-- Tasa -->
   <section class="rate" aria-label="Tasa de cambio">
     <div class="rate-info">
       <span class="rate-label">Tasa de cálculo</span>
@@ -88,7 +85,6 @@
     </div>
   </section>
 
-  <!-- Señales de confianza -->
   <section class="trust" aria-label="Información de confianza">
     <div class="trust-item">
       <div class="trust-icon">🚚</div>
@@ -108,7 +104,7 @@
       <div class="trust-icon">💵</div>
       <div class="trust-text">
         <strong>Pago</strong>
-        <span>USD · MLC · CUP</span>
+        <span>USD · CUP</span>
       </div>
     </div>
     <div class="trust-item">
@@ -120,7 +116,6 @@
     </div>
   </section>
 
-  <!-- Modo -->
   <h2 class="section-title">¿Cómo deseas comprar?</h2>
   <div class="modes" role="tablist">
     <button id="wh" type="button" class="mode" onclick="setMode('wholesale')" role="tab">
@@ -144,15 +139,25 @@
     <span>Precios en <b>USD</b>. CUP calculado con la tasa. Mayorista: mínimo <b>5 unidades</b> por producto.</span>
   </div>
 
-  <!-- Banner Más buscados -->
   <section id="featuredSection" class="featured-section" style="display:none">
-    <h2 class="section-title">
-      <span class="section-flame">🔥</span> Más buscados
-    </h2>
-    <div id="featuredGrid" class="featured-grid"></div>
+    <div class="featured-header">
+      <h2 class="section-title">
+        <span class="section-flame">🔥</span> Más buscados
+      </h2>
+      <div class="featured-nav">
+        <button type="button" class="featured-arrow" id="featPrev" onclick="scrollFeatured(-1)" aria-label="Anterior">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="featured-arrow" id="featNext" onclick="scrollFeatured(1)" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="featured-wrap">
+      <div id="featuredGrid" class="featured-grid"></div>
+    </div>
   </section>
 
-  <!-- Buscador y filtros -->
   <div class="search-wrap">
     <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
     <input id="search" class="search" type="search" placeholder="Buscar repuesto, código..." oninput="render()" autocomplete="off">
@@ -160,7 +165,6 @@
 
   <div id="filters" class="filters"></div>
 
-  <!-- Grid -->
   <section id="grid" class="grid" aria-live="polite">
     <div class="loader">
       <div class="loader-spinner"></div>
@@ -169,13 +173,11 @@
   </section>
   <p id="empty" class="empty" style="display:none">Sin resultados para esa búsqueda.</p>
 
-  <!-- Carrito flotante -->
   <button type="button" class="cart-toggle" onclick="openCart()" aria-label="Abrir carrito">
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
     <span class="cart-badge" id="floatingCount">0</span>
   </button>
 
-  <!-- Modal carrito -->
   <div class="cart-overlay" id="cartOverlay" onclick="overlayClose(event)">
     <section class="cart-modal" onclick="event.stopPropagation()">
       <button type="button" class="cart-close" onclick="closeCart()" aria-label="Cerrar carrito">
@@ -220,7 +222,6 @@
     </section>
   </div>
 
-  <!-- Modal Cómo comprar -->
   <div class="cart-overlay" id="howtoOverlay" onclick="overlayHowtoClose(event)">
     <section class="cart-modal howto-modal" onclick="event.stopPropagation()">
       <button type="button" class="cart-close" onclick="closeHowto()" aria-label="Cerrar">
