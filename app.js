@@ -10,7 +10,19 @@ var filter = 'Todas';
 var priceFilter = 'all';
 var sortMode = 'default';
 var cart = {};
-var calc = 685;
+
+// Tasa elTOQUE y tendencia
+var toque = 730;              // tasa elTOQUE (input)
+var trend = 'up';             // 'up' | 'stable' | 'down'
+var calc = 740;               // se recalcula con toque + margen
+
+// Márgenes según tendencia
+var MARGINS = {
+  up: 10,
+  stable: 5,
+  down: 0
+};
+
 var WA_NUMBER = '5354800976';
 var SITE_URL = 'https://mgstore.marcserd.workers.dev';
 var FEATURED_SECTIONS = ['🔥 Más buscados', '⚡ Repuestos disponibles'];
@@ -43,25 +55,58 @@ function escapeHTML(s) {
     .replace(/'/g, '&#39;');
 }
 
+function currentMargin() {
+  return MARGINS[trend] != null ? MARGINS[trend] : 0;
+}
+
+function recalc() {
+  calc = toque + currentMargin();
+}
+
 /* ==========================================================
    Persistencia
    ========================================================== */
 function loadState() {
   try { cart = JSON.parse(localStorage.getItem('mg_cart') || '{}'); } catch (e) { cart = {}; }
-  var r = localStorage.getItem('mg_rate');
-  if (r && Number(r) > 0) calc = Number(r);
+
+  // Tasa elTOQUE
+  var t = localStorage.getItem('mg_toque');
+  if (t && Number(t) > 0) {
+    toque = Number(t);
+  } else {
+    // Migración de valores viejos
+    var r = localStorage.getItem('mg_rate');
+    if (r && Number(r) > 0) {
+      // Si tenía 740, asumimos que era calc con margen 10 → toque = 730
+      toque = Math.max(1, Number(r) - 10);
+      localStorage.setItem('mg_toque', String(toque));
+    }
+  }
+
+  // Tendencia
+  var tr = localStorage.getItem('mg_trend');
+  if (tr === 'up' || tr === 'stable' || tr === 'down') {
+    trend = tr;
+  }
+
+  recalc();
+
   var pf = localStorage.getItem('mg_price_filter');
   if (pf) priceFilter = pf;
   var sm = localStorage.getItem('mg_sort');
   if (sm) sortMode = sm;
 }
+
 function saveCart() { localStorage.setItem('mg_cart', JSON.stringify(cart)); }
-function saveRate() { localStorage.setItem('mg_rate', String(calc)); }
+function saveRate() {
+  localStorage.setItem('mg_toque', String(toque));
+  localStorage.setItem('mg_trend', trend);
+}
 function savePriceFilter() { localStorage.setItem('mg_price_filter', priceFilter); }
 function saveSort() { localStorage.setItem('mg_sort', sortMode); }
 
 /* ==========================================================
-   Horario: Lun-Vie 9-17, Sáb 9-12, Dom cerrado
+   Horario
    ========================================================== */
 function updateOpenStatus() {
   var el = $('openStatus');
@@ -105,18 +150,57 @@ function updateOpenStatus() {
 }
 
 /* ==========================================================
-   Tasa CUP
+   Tasa CUP (elTOQUE + margen según tendencia)
    ========================================================== */
 function loadRate() {
-  if ($('rateInput')) $('rateInput').value = calc;
-  if ($('calcRate')) $('calcRate').textContent = calc + ' CUP/USD';
+  if ($('rateInput')) $('rateInput').value = toque;
+  updateTrendUI();
+  updateRateDisplay();
 }
+
+function updateRateDisplay() {
+  if ($('calcRate')) $('calcRate').textContent = calc + ' CUP/USD';
+  if ($('toqueRate')) $('toqueRate').textContent = toque;
+
+  var badge = $('marginBadge');
+  if (badge) {
+    var m = currentMargin();
+    var arrow = trend === 'up' ? '↑' : (trend === 'down' ? '↓' : '→');
+    badge.textContent = (m > 0 ? '+' : '') + m + ' ' + arrow;
+    badge.classList.remove('margin-up', 'margin-stable', 'margin-down');
+    badge.classList.add('margin-' + trend);
+  }
+}
+
+function updateTrendUI() {
+  var btns = { up: $('trendUp'), stable: $('trendStable'), down: $('trendDown') };
+  Object.keys(btns).forEach(function (k) {
+    var b = btns[k];
+    if (!b) return;
+    b.classList.toggle('active', k === trend);
+    b.setAttribute('aria-checked', k === trend ? 'true' : 'false');
+  });
+}
+
+function setTrend(t) {
+  if (t !== 'up' && t !== 'stable' && t !== 'down') return;
+  trend = t;
+  recalc();
+  saveRate();
+  updateTrendUI();
+  updateRateDisplay();
+  render();
+  renderFeatured();
+}
+
 function applyRate() {
   var v = Number($('rateInput').value);
   if (!v || v <= 0) return alert('Tasa inválida');
-  calc = v;
+
+  toque = v;
+  recalc();
   saveRate();
-  $('calcRate').textContent = v + ' CUP/USD';
+  updateRateDisplay();
   render();
   renderFeatured();
 }
@@ -143,7 +227,7 @@ function load() {
 }
 
 /* ==========================================================
-   Modo mayorista/minorista
+   Modo
    ========================================================== */
 function setMode(m) {
   mode = m;
@@ -339,7 +423,7 @@ function renderFeatured() {
 }
 
 /* ==========================================================
-   Navegación del carrusel
+   Carrusel
    ========================================================== */
 function scrollFeatured(direction) {
   var grid = $('featuredGrid');
@@ -438,7 +522,7 @@ function cartRender() {
 }
 
 /* ==========================================================
-   Generación de texto del pedido
+   Pedido
    ========================================================== */
 function buildOrderText() {
   var rows = [], usd = 0;
@@ -453,21 +537,21 @@ function buildOrderText() {
   });
   if (!rows.length) return null;
 
+  var trendLabel = trend === 'up' ? 'subiendo' : (trend === 'down' ? 'bajando' : 'estable');
+  var margin = currentMargin();
+
   var text =
     "MG'S STORE — PEDIDO\n\n" +
     "Modalidad: " + (mode === 'wholesale' ? 'MAYORISTA' : 'MINORISTA') + "\n\n" +
     rows.join('\n') + "\n\n" +
     "TOTAL USD: " + fmt(usd) + "\n" +
     "TOTAL CUP: " + fmt(usd * calc) + "\n" +
-    "TASA: " + calc + " CUP/USD\n\n" +
+    "TASA: " + calc + " CUP/USD (elTOQUE " + toque + " " + trendLabel + (margin > 0 ? " +" + margin : "") + ")\n\n" +
     "Por favor confirmar disponibilidad, condiciones de pago y entrega.";
 
   return { text: text, total: usd };
 }
 
-/* ==========================================================
-   WhatsApp
-   ========================================================== */
 function sendWhatsApp() {
   if (mode === 'wholesale') {
     var keys = Object.keys(cart);
@@ -483,9 +567,6 @@ function sendWhatsApp() {
   window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(order.text), '_blank');
 }
 
-/* ==========================================================
-   Copiar pedido
-   ========================================================== */
 function copyOrder() {
   if (mode === 'wholesale') {
     var keys = Object.keys(cart);
@@ -582,7 +663,7 @@ document.addEventListener('click', function (e) {
 });
 
 /* ==========================================================
-   Generación del PDF
+   PDF
    ========================================================== */
 function descargarPDF(tipo) {
   closePdfMenu();
@@ -590,7 +671,7 @@ function descargarPDF(tipo) {
   var list = PRODUCTS.filter(function (p) { return p.disponible || p.stock > 0; });
 
   if (tipo === 'light') {
-    // Sin fotos
+    // sin fotos
   } else if (tipo === 'category') {
     if (!filter || filter === 'Todas') {
       alert('Selecciona primero una categoría en los filtros.');
@@ -611,7 +692,6 @@ function descargarPDF(tipo) {
     ? filter
     : (tipo === 'wholesale' ? 'Catálogo Mayorista' : 'Catálogo de Repuestos');
 
-  // Agrupar por categoría
   var grupos = {};
   list.forEach(function (p) {
     var cat = p.cat || 'Sin categoría';
@@ -620,12 +700,10 @@ function descargarPDF(tipo) {
   });
   var categorias = Object.keys(grupos).sort();
 
-  // Fecha
   var hoy = new Date();
   var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   var fechaTexto = hoy.getDate() + ' de ' + meses[hoy.getMonth()] + ' de ' + hoy.getFullYear();
 
-  // Secciones
   var seccionesHTML = '';
   categorias.forEach(function (cat) {
     var prods = grupos[cat].sort(function (a, b) { return a.name.localeCompare(b.name, 'es'); });
@@ -640,20 +718,19 @@ function descargarPDF(tipo) {
       '</section>';
   });
 
-  // QR
   var qrURL = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(SITE_URL);
+  var trendLabel = trend === 'up' ? 'subiendo' : (trend === 'down' ? 'bajando' : 'estable');
+  var margin = currentMargin();
+  var rateLine = 'elTOQUE ' + toque + ' (' + trendLabel + (margin > 0 ? ', +' + margin + ' margen' : '') + ')';
 
-  // HTML
   var html =
     '<!doctype html><html lang="es"><head><meta charset="utf-8">' +
     '<title>' + escapeHTML(titulo) + ' — MG\'s Store</title>' +
     '<style>' + estilosPDF(incluirFotos) + '</style>' +
     '</head><body>' +
 
-    // Marca de agua (siempre visible)
     '<div class="watermark">Precios sujetos a cambio</div>' +
 
-    // Portada
     '<div class="cover">' +
       '<div class="cover-brand">⚡ MG\'s Store</div>' +
       '<h1 class="cover-title">' + escapeHTML(titulo).replace(' ', '<br>') + '</h1>' +
@@ -663,6 +740,7 @@ function descargarPDF(tipo) {
         '<div class="cover-line"><strong>Productos:</strong> ' + list.length + '</div>' +
         '<div class="cover-line"><strong>Categorías:</strong> ' + categorias.length + '</div>' +
         '<div class="cover-line"><strong>Tasa CUP:</strong> ' + calc + ' CUP/USD</div>' +
+        '<div class="cover-line" style="font-size:9pt;color:rgba(255,255,255,.6)">' + rateLine + '</div>' +
       '</div>' +
       '<div class="cover-qr">' +
         '<img src="' + qrURL + '" alt="QR">' +
@@ -676,10 +754,8 @@ function descargarPDF(tipo) {
       '<div class="cover-note">Los precios son referenciales y pueden variar. Confirma por WhatsApp antes de comprar. <strong>Revisa tu pieza antes de pagar — no hay devoluciones.</strong></div>' +
     '</div>' +
 
-    // Secciones
     seccionesHTML +
 
-    // Página final
     '<div class="final-page">' +
       '<div class="final-brand">⚡ MG\'s Store</div>' +
       '<h2 class="final-title">¿Listo para pedir?</h2>' +
@@ -693,7 +769,6 @@ function descargarPDF(tipo) {
 
     '</body></html>';
 
-  // Abrir ventana
   var win = window.open('', '_blank');
   if (!win) {
     alert('Permite las ventanas emergentes para descargar el PDF.');
@@ -808,11 +883,7 @@ function estilosPDF(incluirFotos) {
   return [
     '*{box-sizing:border-box;margin:0;padding:0}',
     'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#0f172a;font-size:11pt;line-height:1.4;position:relative}',
-
-    // Marca de agua
     '.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80pt;font-weight:900;color:rgba(15,23,42,.04);pointer-events:none;z-index:0;white-space:nowrap}',
-
-    // Portada
     '.cover{page-break-after:always;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:95vh;text-align:center;padding:40px 30px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff;position:relative;z-index:1}',
     '.cover-brand{font-size:16pt;font-weight:900;margin-bottom:40px;letter-spacing:-.02em}',
     '.cover-title{font-size:36pt;font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:18px}',
@@ -827,16 +898,10 @@ function estilosPDF(incluirFotos) {
     '.cover-contact-title{font-size:9pt;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.5);margin-bottom:8px}',
     '.cover-contact div{font-size:11pt;color:#fff}',
     '.cover-note{font-size:9pt;color:rgba(255,255,255,.6);font-style:italic;max-width:440px;line-height:1.5}',
-
-    // Secciones
     '.cat-section{margin-bottom:22px;page-break-inside:auto;position:relative;z-index:1}',
     '.cat-title{font-size:16pt;font-weight:900;letter-spacing:-.02em;color:#0f172a;border-bottom:2px solid #f97316;padding-bottom:8px;margin-bottom:14px;display:flex;align-items:center;gap:8px;page-break-after:avoid}',
     '.cat-icon{font-size:16pt}',
-
-    // Grid
     imgStyles,
-
-    // Piezas
     '.p-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}',
     '.p-code{font-size:7.5pt;font-weight:700;color:#94a3b8;letter-spacing:.06em;text-transform:uppercase}',
     '.p-name{font-size:10pt;font-weight:700;color:#0f172a;line-height:1.25;margin-bottom:2px}',
@@ -848,8 +913,6 @@ function estilosPDF(incluirFotos) {
     '.p-stock{font-size:8pt;margin-top:4px}',
     '.p-stock-ok{color:#16a34a;font-weight:700}',
     '.p-stock-low{color:#ea580c;font-weight:700}',
-
-    // Página final
     '.final-page{page-break-before:always;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:95vh;text-align:center;padding:60px 30px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff;position:relative;z-index:1}',
     '.final-brand{font-size:16pt;font-weight:900;margin-bottom:30px}',
     '.final-title{font-size:28pt;font-weight:900;letter-spacing:-.03em;margin-bottom:16px}',
@@ -858,8 +921,6 @@ function estilosPDF(incluirFotos) {
     '.final-qr img{width:150px;height:150px;background:#fff;border-radius:10px;padding:8px}',
     '.final-wa{font-size:20pt;font-weight:900;color:#16a34a;background:rgba(22,163,74,.12);padding:14px 28px;border-radius:999px;margin-bottom:24px}',
     '.final-note{font-size:9pt;color:rgba(255,255,255,.55);max-width:480px;line-height:1.6}',
-
-    // Print
     '@page{size:A4;margin:10mm}',
     '@media print{',
       'body{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}',
