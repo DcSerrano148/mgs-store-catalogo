@@ -11,12 +11,10 @@ var priceFilter = 'all';
 var sortMode = 'default';
 var cart = {};
 
-// Tasa elTOQUE y tendencia
-var toque = 730;              // tasa elTOQUE (input)
-var trend = 'up';             // 'up' | 'stable' | 'down'
-var calc = 740;               // se recalcula con toque + margen
+var toque = 730;
+var trend = 'up';
+var calc = 740;
 
-// Márgenes según tendencia
 var MARGINS = {
   up: 10,
   stable: 5,
@@ -24,7 +22,7 @@ var MARGINS = {
 };
 
 var WA_NUMBER = '5354800976';
-var SITE_URL = 'https://mgstore.marcserd.workers.dev';
+var SITE_URL = 'https://mgstores.pages.dev';
 var FEATURED_SECTIONS = ['🔥 Más buscados', '⚡ Repuestos disponibles'];
 var LOW_STOCK_THRESHOLD = 5;
 
@@ -69,21 +67,17 @@ function recalc() {
 function loadState() {
   try { cart = JSON.parse(localStorage.getItem('mg_cart') || '{}'); } catch (e) { cart = {}; }
 
-  // Tasa elTOQUE
   var t = localStorage.getItem('mg_toque');
   if (t && Number(t) > 0) {
     toque = Number(t);
   } else {
-    // Migración de valores viejos
     var r = localStorage.getItem('mg_rate');
     if (r && Number(r) > 0) {
-      // Si tenía 740, asumimos que era calc con margen 10 → toque = 730
       toque = Math.max(1, Number(r) - 10);
       localStorage.setItem('mg_toque', String(toque));
     }
   }
 
-  // Tendencia
   var tr = localStorage.getItem('mg_trend');
   if (tr === 'up' || tr === 'stable' || tr === 'down') {
     trend = tr;
@@ -150,7 +144,7 @@ function updateOpenStatus() {
 }
 
 /* ==========================================================
-   Tasa CUP (elTOQUE + margen según tendencia)
+   Tasa CUP
    ========================================================== */
 function loadRate() {
   if ($('rateInput')) $('rateInput').value = toque;
@@ -360,7 +354,7 @@ function cardHTML(p, opts) {
 }
 
 /* ==========================================================
-   Render principal
+   Render
    ========================================================== */
 function render() {
   categories();
@@ -616,7 +610,7 @@ function copyOrder() {
 }
 
 /* ==========================================================
-   Modal Cómo comprar
+   Cómo comprar
    ========================================================== */
 function openHowto() { $('howtoOverlay').classList.add('open'); }
 function closeHowto() { $('howtoOverlay').classList.remove('open'); }
@@ -933,7 +927,7 @@ function estilosPDF(incluirFotos) {
 }
 
 /* ==========================================================
-   Inicialización
+   Init
    ========================================================== */
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') {
