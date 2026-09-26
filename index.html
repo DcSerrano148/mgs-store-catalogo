@@ -52,6 +52,11 @@
     </h1>
     <p class="hero-sub">Mayorista y minorista · Guanabacoa, La Habana</p>
 
+    <div class="hero-status">
+      <span class="status-dot"></span>
+      <span id="openStatus">Cargando horario...</span>
+    </div>
+
     <div class="hero-actions">
       <a class="hero-cta" href="https://wa.me/5354800976" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.4 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.7-.6-2.8-1.2-4.6-4-4.7-4.2-.2-.2-1.2-1.5-1.2-2.9 0-1.3.7-2 1-2.2.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.2.1.3 0 .5-.1.2-.1.3-.3.5l-.4.5c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.6-.2.2.1 1.5.7 1.7.8.2.1.4.2.4.3.1.2.1.9-.1 1.5Z"/></svg>
@@ -90,7 +95,7 @@
       <div class="trust-icon">🚚</div>
       <div class="trust-text">
         <strong>Entregas</strong>
-        <span>La Habana</span>
+        <span>Guanabacoa, Regla, Hab. Este</span>
       </div>
     </div>
     <div class="trust-item">
@@ -104,14 +109,14 @@
       <div class="trust-icon">💵</div>
       <div class="trust-text">
         <strong>Pago</strong>
-        <span>USD · CUP</span>
+        <span>USD · MLC · CUP</span>
       </div>
     </div>
     <div class="trust-item">
-      <div class="trust-icon">📞</div>
+      <div class="trust-icon">🕐</div>
       <div class="trust-text">
-        <strong>Atención</strong>
-        <span>WhatsApp directo</span>
+        <strong>Horario</strong>
+        <span>Lun–Sáb · 8 AM – 6 PM</span>
       </div>
     </div>
   </section>
@@ -164,6 +169,34 @@
   </div>
 
   <div id="filters" class="filters"></div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <span id="productCount" class="count-badge">0 productos</span>
+    </div>
+    <div class="toolbar-right">
+      <div class="toolbar-group">
+        <label for="priceFilter">Precio:</label>
+        <select id="priceFilter" onchange="setPriceFilter(this.value)">
+          <option value="all">Todos</option>
+          <option value="lt5">Menos de $5</option>
+          <option value="5to20">$5 – $20</option>
+          <option value="20to50">$20 – $50</option>
+          <option value="gt50">Más de $50</option>
+        </select>
+      </div>
+      <div class="toolbar-group">
+        <label for="sortSelect">Ordenar:</label>
+        <select id="sortSelect" onchange="setSort(this.value)">
+          <option value="default">Relevancia</option>
+          <option value="price-asc">Precio ↑</option>
+          <option value="price-desc">Precio ↓</option>
+          <option value="name-asc">Nombre A-Z</option>
+          <option value="stock-desc">Más stock</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
   <section id="grid" class="grid" aria-live="polite">
     <div class="loader">
@@ -218,6 +251,10 @@
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.4 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.7-.6-2.8-1.2-4.6-4-4.7-4.2-.2-.2-1.2-1.5-1.2-2.9 0-1.3.7-2 1-2.2.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.2.1.3 0 .5-.1.2-.1.3-.3.5l-.4.5c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.6-.2.2.1 1.5.7 1.7.8.2.1.4.2.4.3.1.2.1.9-.1 1.5Z"/></svg>
         Enviar pedido por WhatsApp
       </button>
+      <button type="button" class="copy-btn" id="copyBtn" onclick="copyOrder()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span id="copyBtnText">Copiar pedido</span>
+      </button>
       <button type="button" class="clear" onclick="clearCart()">Vaciar carrito</button>
     </section>
   </div>
@@ -236,7 +273,7 @@
           <div class="howto-num">1</div>
           <div>
             <strong>Explora y elige</strong>
-            <p>Busca por nombre, filtra por categoría, cambia entre precio minorista y mayorista.</p>
+            <p>Busca por nombre, filtra por categoría o rango de precio, cambia entre minorista y mayorista.</p>
           </div>
         </div>
         <div class="howto-step">
@@ -257,7 +294,7 @@
           <div class="howto-num">4</div>
           <div>
             <strong>Confirma y recibe</strong>
-            <p>Coordinamos pago y entrega en La Habana. Recogida en Guanabacoa o a domicilio.</p>
+            <p>Coordinamos pago y entrega. Recogida en Guanabacoa o a domicilio en municipios cercanos.</p>
           </div>
         </div>
       </div>
@@ -270,11 +307,15 @@
         </details>
         <details>
           <summary>¿Hacen entregas a domicilio?</summary>
-          <p>Sí, en toda La Habana. La tarifa depende del municipio. Se confirma al confirmar el pedido.</p>
+          <p>Sí. Entregas en Guanabacoa, Regla, Habana del Este y San Miguel del Padrón. Otros municipios se consultan por WhatsApp.</p>
+        </details>
+        <details>
+          <summary>¿Cuál es el horario de atención?</summary>
+          <p>Lunes a Sábado, de 8:00 AM a 6:00 PM. Fuera de horario puedes escribir por WhatsApp y te respondemos al día siguiente.</p>
         </details>
         <details>
           <summary>¿Qué garantía tienen las piezas?</summary>
-          <p>30 días por defecto de fábrica. No cubre daños por mal uso o instalación incorrecta.</p>
+          <p>30 días por defectos de fábrica. No cubre daños por mal uso o instalación incorrecta.</p>
         </details>
         <details>
           <summary>¿Puedo cambiar o devolver?</summary>
@@ -299,9 +340,9 @@
   <div class="footer-brand">MG's Store</div>
   <div class="footer-sub">Guanabacoa, La Habana · Cuba</div>
   <a class="footer-wa" href="https://wa.me/5354800976" target="_blank" rel="noopener">+53 5480 0976</a>
-  <div class="footer-note">Precios referenciales. Tasa según elTOQUE.</div>
+  <div class="footer-note">Lun–Sáb 8 AM – 6 PM · Precios referenciales · Tasa elTOQUE</div>
 </footer>
 
 <script src="app.js"></script>
 </body>
-</html>
+      </html>
