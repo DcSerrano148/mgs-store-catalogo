@@ -1357,3 +1357,127 @@ input,select{font:inherit}
   ::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:5px;border:2px solid var(--bg)}
   ::-webkit-scrollbar-thumb:hover{background:var(--muted-2)}
 }
+
+/* ---------- TREND PICKER ---------- */
+.trend-picker{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:6px;
+  width:100%;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid var(--line);
+}
+.trend-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  padding:9px 6px;
+  background:var(--surface-2);
+  border:2px solid var(--line);
+  border-radius:var(--radius-sm);
+  font-size:11px;
+  font-weight:700;
+  color:var(--ink-2);
+  cursor:pointer;
+  transition:all var(--t);
+  position:relative;
+}
+.trend-btn:hover{
+  border-color:var(--line-2);
+  background:#fff;
+  transform:translateY(-1px);
+}
+.trend-btn .trend-arrow{
+  font-size:16px;
+  line-height:1;
+  font-weight:900;
+}
+.trend-btn .trend-label{
+  font-size:10.5px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.trend-btn .trend-margin{
+  font-size:10px;
+  font-weight:800;
+  padding:1px 6px;
+  border-radius:6px;
+  background:var(--surface);
+  color:var(--muted);
+}
+
+/* Estado activo por tendencia */
+.trend-btn.up.active{
+  background:#fef2f2;
+  border-color:#ef4444;
+  color:#b91c1c;
+}
+.trend-btn.up.active .trend-margin{
+  background:#ef4444;
+  color:#fff;
+}
+
+.trend-btn.stable.active{
+  background:#fffbeb;
+  border-color:#f59e0b;
+  color:#92400e;
+}
+.trend-btn.stable.active .trend-margin{
+  background:#f59e0b;
+  color:#fff;
+}
+
+.trend-btn.down.active{
+  background:#ecfdf5;
+  border-color:#16a34a;
+  color:#065f46;
+}
+.trend-btn.down.active .trend-margin{
+  background:#16a34a;
+  color:#fff;
+}
+
+/* Color dinámico del badge de margen */
+.rate-margin{
+  display:inline-block;
+  background:var(--accent-soft);
+  color:var(--accent-2);
+  font-weight:800;
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:6px;
+  border:1px solid #fed7aa;
+  transition:all var(--t);
+}
+.rate-margin.margin-up{
+  background:#fef2f2;
+  color:#b91c1c;
+  border-color:#fecaca;
+}
+.rate-margin.margin-stable{
+  background:#fffbeb;
+  color:#92400e;
+  border-color:#fde68a;
+}
+.rate-margin.margin-down{
+  background:#ecfdf5;
+  color:#065f46;
+  border-color:#a7f3d0;
+}
+
+@media (max-width:640px){
+  .trend-picker{
+    grid-template-columns:1fr 1fr 1fr;
+    gap:5px;
+    margin-top:10px;
+    padding-top:10px;
+  }
+  .trend-btn{
+    padding:7px 4px;
+  }
+  .trend-btn .trend-arrow{font-size:14px}
+  .trend-btn .trend-label{font-size:9.5px}
+  .trend-btn .trend-margin{font-size:9px;padding:1px 4px}
+}
