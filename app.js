@@ -4,10 +4,13 @@
 let PRODUCTS = [];
 let mode = 'retail';
 let filter = 'Todas';
+let priceFilter = 'all';
+let sortMode = 'default';
 let cart = {};
 let calc = 685;
 const WA_NUMBER = '5354800976';
 const FEATURED_SECTIONS = ['🔥 Más buscados', '⚡ Repuestos disponibles'];
+const LOW_STOCK_THRESHOLD = 5;
 
 const $ = id => document.getElementById(id);
 const fmt = n => new Intl.NumberFormat('es-CU', {
@@ -22,9 +25,43 @@ function loadState() {
   try { cart = JSON.parse(localStorage.getItem('mg_cart') || '{}'); } catch (e) { cart = {}; }
   const r = localStorage.getItem('mg_rate');
   if (r && Number(r) > 0) calc = Number(r);
+  const pf = localStorage.getItem('mg_price_filter');
+  if (pf) priceFilter = pf;
+  const sm = localStorage.getItem('mg_sort');
+  if (sm) sortMode = sm;
 }
 function saveCart() { localStorage.setItem('mg_cart', JSON.stringify(cart)); }
 function saveRate() { localStorage.setItem('mg_rate', String(calc)); }
+function savePriceFilter() { localStorage.setItem('mg_price_filter', priceFilter); }
+function saveSort() { localStorage.setItem('mg_sort', sortMode); }
+
+// ---------- Horario ----------
+function updateOpenStatus() {
+  const el = $('openStatus');
+  const dot = document.querySelector('.status-dot');
+  if (!el) return;
+
+  // Hora Cuba (UTC-5 sin horario de verano, UTC-4 con). Usamos UTC-5 conservador.
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const cuba = new Date(utc - 5 * 3600000);
+
+  const day = cuba.getDay(); // 0=domingo, 6=sábado
+  const hour = cuba.getHours();
+
+  const isSunday = day === 0;
+  const isOpen = !isSunday && hour >= 8 && hour < 18;
+
+  if (isOpen) {
+    el.textContent = 'Abierto ahora · respondemos en minutos';
+    if (dot) dot.classList.remove('closed');
+  } else {
+    el.textContent = isSunday
+      ? 'Cerrado hoy (domingo) · te respondemos el lunes'
+      : 'Fuera de horario · te respondemos al abrir';
+    if (dot) dot.classList.add('closed');
+  }
+}
 
 // ---------- Tasa ----------
 function loadRate() {
@@ -75,12 +112,60 @@ function categories() {
 }
 function setFilter(c) { filter = c; render(); }
 
+function setPriceFilter(v) {
+  priceFilter = v;
+  savePriceFilter();
+  render();
+}
+
+function setSort(v) {
+  sortMode = v;
+  saveSort();
+  render();
+}
+
+function priceInRange(price) {
+  if (price == null) return false;
+  switch (priceFilter) {
+    case 'lt5': return price < 5;
+    case '5to20': return price >= 5 && price < 20;
+    case '20to50': return price >= 20 && price < 50;
+    case 'gt50': return price >= 50;
+    default: return true;
+  }
+}
+
+function sortList(list) {
+  const priceOf = p => mode === 'wholesale' ? p.wholesale : p.retail;
+  switch (sortMode) {
+    case 'price-asc':
+      return list.slice().sort((a, b) => {
+        const pa = priceOf(a); const pb = priceOf(b);
+        if (pa == null) return 1; if (pb == null) return -1;
+        return pa - pb;
+      });
+    case 'price-desc':
+      return list.slice().sort((a, b) => {
+        const pa = priceOf(a); const pb = priceOf(b);
+        if (pa == null) return 1; if (pb == null) return -1;
+        return pb - pa;
+      });
+    case 'name-asc':
+      return list.slice().sort((a, b) => a.name.localeCompare(b.name, 'es'));
+    case 'stock-desc':
+      return list.slice().sort((a, b) => (b.stock || 0) - (a.stock || 0));
+    default:
+      return list;
+  }
+}
+
 // ---------- Card HTML ----------
 function cardHTML(p, opts) {
   opts = opts || {};
   const featured = opts.featured === true;
   const price = mode === 'wholesale' ? p.wholesale : p.retail;
   const can = price != null && (p.disponible || p.stock > 0);
+  const isLow = p.stock > 0 && p.stock < LOW_STOCK_THRESHOLD;
   const stockLabel = p.stock > 0
     ? '🟢 ' + p.stock + ' disponibles'
     : (p.disponible ? '🟡 Consultar' : '⚪ Agotado');
@@ -104,7 +189,12 @@ function cardHTML(p, opts) {
     '</article>';
   }
 
+  const ribbon = isLow ? '<div class="card-ribbon">¡Últimas!</div>' : '';
+  const stockClass = isLow ? 'stock low' : 'stock';
+  const stockText = isLow ? '⚡ Solo quedan ' + p.stock : stockLabel;
+
   return '<article class="card">' +
+    ribbon +
     '<div class="pic">' +
       '<img src="' + p.photo + '" alt="' + p.name + '" loading="lazy" width="235" height="180" ' +
            'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
@@ -115,7 +205,7 @@ function cardHTML(p, opts) {
       '<h3>' + p.name + '</h3>' +
       priceHTML +
       (mode === 'wholesale' ? '<span class="badge">Mínimo 5 unidades</span>' : '') +
-      '<div class="stock">' + stockLabel + '</div>' +
+      '<div class="' + stockClass + '">' + stockText + '</div>' +
       '<button type="button" class="add ' + (can ? '' : 'disabled') + '" ' + (can ? '' : 'disabled') + ' ' +
               'onclick="add(\'' + p.code + '\')">' +
         (can ? '🛒 Añadir al carrito' : 'No disponible') +
@@ -129,13 +219,24 @@ function render() {
   categories();
   const q = norm($('search').value || '');
 
-  const list = PRODUCTS.filter(p => {
+  let list = PRODUCTS.filter(p => {
     if (!p.disponible && p.stock === 0) return false;
     if (filter !== 'Todas' && p.cat !== filter) return false;
     if (q && !norm(p.name + ' ' + p.code).includes(q)) return false;
     if (mode === 'wholesale' && p.wholesale == null) return false;
+    const price = mode === 'wholesale' ? p.wholesale : p.retail;
+    if (!priceInRange(price)) return false;
     return true;
   });
+
+  list = sortList(list);
+
+  // Actualizar contador
+  const countEl = $('productCount');
+  if (countEl) {
+    const total = list.length;
+    countEl.textContent = total === 1 ? '1 producto' : total + ' productos';
+  }
 
   if (!list.length) {
     $('grid').innerHTML = '';
@@ -266,8 +367,8 @@ function cartRender() {
   $('applied').textContent = calc;
 }
 
-// ---------- WhatsApp ----------
-function sendWhatsApp() {
+// ---------- Generación de texto del pedido ----------
+function buildOrderText() {
   const rows = [];
   let usd = 0;
   for (const c in cart) {
@@ -277,16 +378,12 @@ function sendWhatsApp() {
     if (!p) continue;
     const price = mode === 'wholesale' ? p.wholesale : p.retail;
     if (price == null) continue;
-    if (mode === 'wholesale' && q < 5) {
-      alert('Cada producto mayorista debe tener mínimo 5 unidades.');
-      return;
-    }
     usd += price * q;
     rows.push(q + ' x ' + p.name + ' [' + p.code + '] — ' + fmt(price * q) + ' USD');
   }
-  if (!rows.length) return alert('El carrito está vacío.');
+  if (!rows.length) return null;
 
-  const msg =
+  const text =
     "MG'S STORE — PEDIDO\n\n" +
     "Modalidad: " + (mode === 'wholesale' ? 'MAYORISTA' : 'MINORISTA') + "\n\n" +
     rows.join('\n') + "\n\n" +
@@ -295,7 +392,73 @@ function sendWhatsApp() {
     "TASA: " + calc + " CUP/USD\n\n" +
     "Por favor confirmar disponibilidad, condiciones de pago y entrega.";
 
-  window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
+  return { text: text, total: usd, rows: rows };
+}
+
+// ---------- WhatsApp ----------
+function sendWhatsApp() {
+  // Validar mínimo mayorista
+  if (mode === 'wholesale') {
+    for (const c in cart) {
+      if (!Object.prototype.hasOwnProperty.call(cart, c)) continue;
+      if (cart[c] < 5) {
+        alert('Cada producto mayorista debe tener mínimo 5 unidades.');
+        return;
+      }
+    }
+  }
+  const order = buildOrderText();
+  if (!order) return alert('El carrito está vacío.');
+  window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(order.text), '_blank');
+}
+
+// ---------- Copiar pedido ----------
+function copyOrder() {
+  if (mode === 'wholesale') {
+    for (const c in cart) {
+      if (!Object.prototype.hasOwnProperty.call(cart, c)) continue;
+      if (cart[c] < 5) {
+        alert('Cada producto mayorista debe tener mínimo 5 unidades.');
+        return;
+      }
+    }
+  }
+  const order = buildOrderText();
+  if (!order) return alert('El carrito está vacío.');
+
+  const btn = $('copyBtn');
+  const label = $('copyBtnText');
+
+  const done = () => {
+    btn.classList.add('copied');
+    label.textContent = '¡Copiado!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      label.textContent = 'Copiar pedido';
+    }, 2000);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(order.text).then(done).catch(fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
+
+  function fallbackCopy() {
+    const ta = document.createElement('textarea');
+    ta.value = order.text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      done();
+    } catch (e) {
+      alert('No se pudo copiar. Selecciona manualmente el texto.');
+    }
+    document.body.removeChild(ta);
+  }
 }
 
 // ---------- Cómo comprar ----------
@@ -310,7 +473,16 @@ document.addEventListener('keydown', function (e) {
     closeHowto();
   }
 });
+
+function restoreFilters() {
+  if ($('priceFilter')) $('priceFilter').value = priceFilter;
+  if ($('sortSelect')) $('sortSelect').value = sortMode;
+}
+
 loadState();
 loadRate();
 initFeaturedNav();
+restoreFilters();
+updateOpenStatus();
+setInterval(updateOpenStatus, 60000);
 load();
