@@ -75,18 +75,39 @@
   <section class="rate" aria-label="Tasa de cambio">
     <div class="rate-info">
       <span class="rate-label">Tasa de cálculo</span>
-      <strong id="calcRate">685 CUP/USD</strong>
-      <span class="rate-note">Referencia: elTOQUE</span>
+      <strong id="calcRate">740 CUP/USD</strong>
+      <span class="rate-note">
+        elTOQUE <span id="toqueRate">730</span>
+        <span class="rate-margin" id="marginBadge">+10 ↑</span>
+        margen
+      </span>
     </div>
     <div class="rate-actions">
       <div class="rate-edit">
-        <input id="rateInput" type="number" min="1" step="1" value="685" aria-label="Ajustar tasa">
+        <input id="rateInput" type="number" min="1" step="1" value="730" aria-label="Tasa elTOQUE">
         <button type="button" onclick="applyRate()">Aplicar</button>
       </div>
       <a class="rate-link" href="https://eltoque.com/tasas-de-cambio-cuba/dolar" target="_blank" rel="noopener">
         Ver elTOQUE
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
       </a>
+    </div>
+    <div class="trend-picker" role="radiogroup" aria-label="Tendencia del dólar">
+      <button type="button" class="trend-btn up" id="trendUp" onclick="setTrend('up')" role="radio">
+        <span class="trend-arrow">↑</span>
+        <span class="trend-label">Subiendo</span>
+        <span class="trend-margin">+10</span>
+      </button>
+      <button type="button" class="trend-btn stable" id="trendStable" onclick="setTrend('stable')" role="radio">
+        <span class="trend-arrow">→</span>
+        <span class="trend-label">Estable</span>
+        <span class="trend-margin">+5</span>
+      </button>
+      <button type="button" class="trend-btn down" id="trendDown" onclick="setTrend('down')" role="radio">
+        <span class="trend-arrow">↓</span>
+        <span class="trend-label">Bajando</span>
+        <span class="trend-margin">+0</span>
+      </button>
     </div>
   </section>
 
@@ -284,7 +305,7 @@
         </div>
         <div class="total-row tiny">
           <span>Tasa aplicada</span>
-          <span><span id="applied">685</span> CUP/USD</span>
+          <span><span id="applied">740</span> CUP/USD</span>
         </div>
       </div>
 
@@ -343,8 +364,12 @@
       <div class="howto-faq">
         <h3>Preguntas frecuentes</h3>
         <details>
+          <summary>¿Cómo calculan el precio en CUP?</summary>
+          <p>Tomamos la tasa del dólar de elTOQUE y le sumamos un margen según la tendencia del mercado: si el dólar sube, +10 CUP; si está estable, +5 CUP; si baja, sin margen. Así protegemos el precio sin especular.</p>
+        </details>
+        <details>
           <summary>¿Qué formas de pago aceptan?</summary>
-          <p>USD, MLC o CUP según la tasa del día (elTOQUE). Confirmamos por WhatsApp al cerrar el pedido.</p>
+          <p>USD, MLC o CUP según la tasa del día. Confirmamos por WhatsApp al cerrar el pedido.</p>
         </details>
         <details>
           <summary>¿Hacen entregas a domicilio?</summary>
@@ -352,7 +377,7 @@
         </details>
         <details>
           <summary>¿Cuál es el horario de atención?</summary>
-          <p>Lunes a Viernes de 9:00 AM a 5:00 PM. Sábados de 9:00 AM a 12:00 PM. Domingos cerrado. Fuera de horario puedes escribir por WhatsApp y te respondemos al abrir.</p>
+          <p>Lunes a Viernes de 9:00 AM a 5:00 PM. Sábados de 9:00 AM a 12:00 PM. Domingos cerrado.</p>
         </details>
         <details>
           <summary>¿Aceptan devoluciones?</summary>
@@ -361,10 +386,6 @@
         <details>
           <summary>¿Y si la pieza viene defectuosa de fábrica?</summary>
           <p>Si detectas un defecto de fábrica, avísanos el mismo día de la entrega. Evaluamos caso por caso. Los daños por mal uso o instalación incorrecta no están cubiertos.</p>
-        </details>
-        <details>
-          <summary>¿Cómo sé si la pieza es compatible con mi moto?</summary>
-          <p>Escríbenos con marca, modelo y voltaje de tu moto. Te asesoramos antes de comprar para que no te equivoques.</p>
         </details>
       </div>
 
