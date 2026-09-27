@@ -1,0 +1,47 @@
+name: Actualizar tasa elTOQUE
+
+on:
+  schedule:
+    # Cada hora en punto (UTC). Cuba = UTC-5.
+    - cron: '0 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/actualizar_tasa.py'
+      - '.github/workflows/actualizar-tasa.yml'
+      - 'datos/tasa.json'
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Actualizar tasa desde elTOQUE
+        env:
+          ELTOQUE_TOKEN: ${{ secrets.ELTOQUE_TOKEN }}
+        run: python scripts/actualizar_tasa.py
+
+      - name: Commit y push si hay cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datos/tasa.json
+          if git diff --staged --quiet; then
+            echo "Sin cambios en tasa.json"
+          else
+            git commit -m "Auto: actualizar tasa elTOQUE [skip ci]"
+            git push
+          fi
