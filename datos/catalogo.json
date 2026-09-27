@@ -1,6 +1,6 @@
 {
-  "version": "20260926-2206",
-  "generated_at": "2026-09-26T22:06:38",
+  "version": "20260927-0013",
+  "generated_at": "2026-09-27T00:13:17",
   "total": 89,
   "items": [
     {
@@ -22,7 +22,7 @@
       "stock": 12,
       "disponible": true,
       "retail": 3.0,
-      "wholesale": null,
+      "wholesale": 2.5,
       "photo": "fotos/MG-002.jpg"
     },
     {
@@ -209,7 +209,7 @@
       "stock": 9,
       "disponible": true,
       "retail": 12.0,
-      "wholesale": 9.0,
+      "wholesale": null,
       "photo": "fotos/MG-019.jpg"
     },
     {
@@ -275,7 +275,7 @@
       "stock": 21,
       "disponible": true,
       "retail": 8.0,
-      "wholesale": null,
+      "wholesale": 6.5,
       "photo": "fotos/MG-025.jpg"
     },
     {
@@ -308,7 +308,7 @@
       "stock": 19,
       "disponible": true,
       "retail": 10.0,
-      "wholesale": null,
+      "wholesale": 8.0,
       "photo": "fotos/MG-028.jpg"
     },
     {
@@ -395,8 +395,8 @@
       "seccion": "💰 Oportunidades",
       "stock": 70,
       "disponible": true,
-      "retail": 14.0,
-      "wholesale": null,
+      "retail": 16.0,
+      "wholesale": 14.0,
       "photo": "fotos/MG-036.jpg"
     },
     {
@@ -481,7 +481,7 @@
       "name": "Ligas de amarre",
       "cat": "Accesorios y tornillería",
       "seccion": "💰 Oportunidades",
-      "stock": 18,
+      "stock": 16,
       "disponible": true,
       "retail": 1.5,
       "wholesale": 1.2,
@@ -715,7 +715,7 @@
       "stock": 14,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": 3.0,
+      "wholesale": null,
       "photo": "fotos/MG-065.jpg"
     },
     {
@@ -726,7 +726,7 @@
       "stock": 12,
       "disponible": true,
       "retail": 4.0,
-      "wholesale": 3.0,
+      "wholesale": null,
       "photo": "fotos/MG-066.jpg"
     },
     {
