@@ -166,6 +166,32 @@ function updateRateDisplay() {
   }
 }
 
+function updateRateSource(updatedAt, source) {
+  var el = $('rateSource');
+  if (!el) return;
+
+  if (!updatedAt) {
+    el.textContent = 'Manual';
+    el.classList.remove('auto');
+    return;
+  }
+
+  var mins = Math.floor((Date.now() - new Date(updatedAt).getTime()) / 60000);
+  var cuando;
+  if (mins < 1) cuando = 'ahora';
+  else if (mins < 60) cuando = 'hace ' + mins + ' min';
+  else if (mins < 1440) cuando = 'hace ' + Math.floor(mins / 60) + ' h';
+  else cuando = 'hace ' + Math.floor(mins / 1440) + ' d';
+
+  if (source && source.indexOf('elTOQUE') !== -1) {
+    el.textContent = 'Auto · ' + cuando;
+    el.classList.add('auto');
+  } else {
+    el.textContent = 'Manual · ' + cuando;
+    el.classList.remove('auto');
+  }
+}
+
 function updateTrendUI() {
   var btns = { up: $('trendUp'), stable: $('trendStable'), down: $('trendDown') };
   Object.keys(btns).forEach(function (k) {
@@ -200,24 +226,44 @@ function applyRate() {
 }
 
 /* ==========================================================
-   Carga de datos
+   Carga de datos (catálogo + tasa)
    ========================================================== */
 function load() {
-  fetch('datos/catalogo.json?v=' + Date.now())
-    .then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+  Promise.all([
+    fetch('datos/catalogo.json?v=' + Date.now()).then(function (r) {
+      if (!r.ok) throw new Error('catalogo HTTP ' + r.status);
       return r.json();
-    })
-    .then(function (d) {
-      PRODUCTS = Array.isArray(d) ? d : (d.items || []);
-      document.title = "MG's Store | " + PRODUCTS.length + " repuestos";
-      render();
-      renderFeatured();
-    })
-    .catch(function (e) {
-      console.error(e);
-      $('grid').innerHTML = '<p class="notice" style="grid-column:1/-1">No se pudo cargar el catálogo. Verifica tu conexión e intenta de nuevo.</p>';
-    });
+    }),
+    fetch('datos/tasa.json?v=' + Date.now()).then(function (r) {
+      if (!r.ok) return null;
+      return r.json();
+    }).catch(function () { return null; })
+  ]).then(function (results) {
+    var d = results[0];
+    var t = results[1];
+
+    PRODUCTS = Array.isArray(d) ? d : (d.items || []);
+
+    // Si existe tasa.json y tiene datos válidos, usarla
+    if (t && t.calc && t.toque && t.trend) {
+      toque = Number(t.toque);
+      trend = t.trend;
+      calc = Number(t.calc);
+      if ($('rateInput')) $('rateInput').value = toque;
+      updateTrendUI();
+      updateRateDisplay();
+      updateRateSource(t.updated_at, t.source);
+    } else {
+      updateRateSource(null, null);
+    }
+
+    document.title = "MG's Store | " + PRODUCTS.length + " repuestos";
+    render();
+    renderFeatured();
+  }).catch(function (e) {
+    console.error(e);
+    $('grid').innerHTML = '<p class="notice" style="grid-column:1/-1">No se pudo cargar el catálogo. Verifica tu conexión e intenta de nuevo.</p>';
+  });
 }
 
 /* ==========================================================
