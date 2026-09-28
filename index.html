@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <title>MG's Store | Repuestos para motos eléctricas en La Habana</title>
-<meta name="description" content="Repuestos y piezas para motos eléctricas en La Habana. Frenos, luces, sistema eléctrico, carrocería. Mayorista y minorista. WhatsApp +53 5480 0976.">
+<meta name="description" content="Repuestos y piezas para motos eléctricas en La Habana. Frenos, luces, sistema eléctrico, carrocería. Mayorista y minorista. WhatsApp +53 5889 0678.">
 
 <meta property="og:title" content="MG's Store | Repuestos para motos eléctricas">
 <meta property="og:description" content="Catálogo mayorista y minorista. La Habana, Cuba.">
@@ -27,7 +27,7 @@
 {
   "@context":"https://schema.org","@type":"Store",
   "name":"MG's Store","description":"Repuestos para motos eléctricas",
-  "telephone":"+5354800976",
+  "telephone":"+5358890678",
   "address":{"@type":"PostalAddress","addressLocality":"Guanabacoa","addressRegion":"La Habana","addressCountry":"CU"},
   "priceRange":"$0.30 - $45 USD"
 }
@@ -58,7 +58,7 @@
     </div>
 
     <div class="hero-actions">
-      <a class="hero-cta" href="https://wa.me/5354800976" target="_blank" rel="noopener">
+      <a class="hero-cta" href="https://wa.me/5358890678" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.4 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.7-.6-2.8-1.2-4.6-4-4.7-4.2-.2-.2-1.2-1.5-1.2-2.9 0-1.3.7-2 1-2.2.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.2.1.3 0 .5-.1.2-.1.3-.3.5l-.4.5c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.6-.2.2.1 1.5.7 1.7.8.2.1.4.2.4.3.1.2.1.9-.1 1.5Z"/></svg>
         Escríbenos
       </a>
@@ -88,7 +88,7 @@
         <input id="rateInput" type="number" min="1" step="1" value="730" aria-label="Tasa elTOQUE">
         <button type="button" onclick="applyRate()">Aplicar</button>
       </div>
-      <a class="rate-link" href="https://eltoque.com" target="_blank" rel="noopener">
+      <a class="rate-link" href="https://eltoque.com/" target="_blank" rel="noopener">
         Ver elTOQUE
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
       </a>
@@ -295,6 +295,32 @@
         </div>
       </div>
 
+      <!-- Método de entrega -->
+      <div class="delivery-section">
+        <div class="delivery-title">¿Cómo quieres recibir tu pedido?</div>
+        <div class="delivery-options" role="radiogroup" aria-label="Método de entrega">
+          <button type="button" class="delivery-btn active" id="delivPickup" onclick="setDelivery('pickup')" role="radio" aria-checked="true">
+            <span class="delivery-icon">🏪</span>
+            <span class="delivery-text">
+              <strong>Recoger en tienda</strong>
+              <span>Guanabacoa, La Habana</span>
+            </span>
+          </button>
+          <button type="button" class="delivery-btn" id="delivShip" onclick="setDelivery('ship')" role="radio" aria-checked="false">
+            <span class="delivery-icon">🛵</span>
+            <span class="delivery-text">
+              <strong>Enviar por mensajería</strong>
+              <span>A domicilio · La Habana</span>
+            </span>
+          </button>
+        </div>
+        <div class="delivery-address" id="deliveryAddressWrap" style="display:none">
+          <label for="deliveryAddress">Dirección de entrega</label>
+          <textarea id="deliveryAddress" placeholder="Municipio, reparto, calle, número, entre calles, referencias..." rows="3" oninput="saveAddress(this.value)"></textarea>
+          <div class="delivery-address-hint">El costo de la mensajería se confirma por WhatsApp según el municipio.</div>
+        </div>
+      </div>
+
       <div class="cart-total">
         <div class="total-row">
           <span>Total USD</span>
@@ -349,15 +375,15 @@
         <div class="howto-step">
           <div class="howto-num">3</div>
           <div>
-            <strong>Envía por WhatsApp</strong>
-            <p>Pulsa el botón verde. Tu pedido llega formateado con totales en USD y CUP.</p>
+            <strong>Elige cómo recibirlo</strong>
+            <p>Recoger en tienda (Guanabacoa) o enviar por mensajería a tu domicilio.</p>
           </div>
         </div>
         <div class="howto-step">
           <div class="howto-num">4</div>
           <div>
-            <strong>Revisa y recibe</strong>
-            <p>Revisa bien tu pieza antes de pagar. Una vez entregada no aceptamos devoluciones.</p>
+            <strong>Envía por WhatsApp</strong>
+            <p>Pulsa el botón verde. Tu pedido llega formateado con totales en USD y CUP.</p>
           </div>
         </div>
       </div>
@@ -374,7 +400,11 @@
         </details>
         <details>
           <summary>¿Hacen entregas a domicilio?</summary>
-          <p>Sí. Entregas en Guanabacoa, Regla, Habana del Este y San Miguel del Padrón. Otros municipios se consultan por WhatsApp.</p>
+          <p>Sí. Entregas por mensajería en Guanabacoa, Regla, Habana del Este y San Miguel del Padrón. Otros municipios se consultan por WhatsApp. El costo de mensajería se confirma al cerrar el pedido.</p>
+        </details>
+        <details>
+          <summary>¿Dónde recojo si elijo tienda?</summary>
+          <p>En nuestra tienda de Guanabacoa, La Habana. Te enviamos la dirección exacta por WhatsApp al confirmar el pedido.</p>
         </details>
         <details>
           <summary>¿Cuál es el horario de atención?</summary>
@@ -390,7 +420,7 @@
         </details>
       </div>
 
-      <a class="wa" href="https://wa.me/5354800976" target="_blank" rel="noopener" style="text-decoration:none">
+      <a class="wa" href="https://wa.me/5358890678" target="_blank" rel="noopener" style="text-decoration:none">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.4 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.7-.6-2.8-1.2-4.6-4-4.7-4.2-.2-.2-1.2-1.5-1.2-2.9 0-1.3.7-2 1-2.2.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.2.1.3 0 .5-.1.2-.1.3-.3.5l-.4.5c-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.6-.2.2.1 1.5.7 1.7.8.2.1.4.2.4.3.1.2.1.9-.1 1.5Z"/></svg>
         Tengo una duda
       </a>
@@ -402,7 +432,7 @@
 <footer class="footer">
   <div class="footer-brand">MG's Store</div>
   <div class="footer-sub">Guanabacoa, La Habana · Cuba</div>
-  <a class="footer-wa" href="https://wa.me/5354800976" target="_blank" rel="noopener">+53 5480 0976</a>
+  <a class="footer-wa" href="https://wa.me/5358890678" target="_blank" rel="noopener">+53 5889 0678</a>
   <div class="footer-note">Lun–Vie 9 AM–5 PM · Sáb 9 AM–12 PM · Sin devoluciones</div>
 </footer>
 
