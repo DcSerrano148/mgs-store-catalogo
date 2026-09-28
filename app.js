@@ -21,7 +21,10 @@ var MARGINS = {
   down: 0
 };
 
-var WA_NUMBER = '5354800976';
+var delivery = 'pickup';       // 'pickup' | 'ship'
+var deliveryAddress = '';
+
+var WA_NUMBER = '5358890678';
 var SITE_URL = 'https://mgstores.pages.dev';
 var FEATURED_SECTIONS = ['🔥 Más buscados', '⚡ Repuestos disponibles'];
 var LOW_STOCK_THRESHOLD = 5;
@@ -83,6 +86,16 @@ function loadState() {
     trend = tr;
   }
 
+  var d = localStorage.getItem('mg_delivery');
+  if (d === 'pickup' || d === 'ship') {
+    delivery = d;
+  }
+
+  var addr = localStorage.getItem('mg_delivery_address');
+  if (addr) {
+    deliveryAddress = addr;
+  }
+
   recalc();
 
   var pf = localStorage.getItem('mg_price_filter');
@@ -95,6 +108,10 @@ function saveCart() { localStorage.setItem('mg_cart', JSON.stringify(cart)); }
 function saveRate() {
   localStorage.setItem('mg_toque', String(toque));
   localStorage.setItem('mg_trend', trend);
+}
+function saveDelivery() {
+  localStorage.setItem('mg_delivery', delivery);
+  localStorage.setItem('mg_delivery_address', deliveryAddress);
 }
 function savePriceFilter() { localStorage.setItem('mg_price_filter', priceFilter); }
 function saveSort() { localStorage.setItem('mg_sort', sortMode); }
@@ -226,7 +243,7 @@ function applyRate() {
 }
 
 /* ==========================================================
-   Carga de datos (catálogo + tasa)
+   Carga de datos
    ========================================================== */
 function load() {
   Promise.all([
@@ -244,7 +261,6 @@ function load() {
 
     PRODUCTS = Array.isArray(d) ? d : (d.items || []);
 
-    // Si existe tasa.json y tiene datos válidos, usarla
     if (t && t.calc && t.toque && t.trend) {
       toque = Number(t.toque);
       trend = t.trend;
@@ -260,10 +276,42 @@ function load() {
     document.title = "MG's Store | " + PRODUCTS.length + " repuestos";
     render();
     renderFeatured();
+    restoreDeliveryUI();
   }).catch(function (e) {
     console.error(e);
     $('grid').innerHTML = '<p class="notice" style="grid-column:1/-1">No se pudo cargar el catálogo. Verifica tu conexión e intenta de nuevo.</p>';
   });
+}
+
+/* ==========================================================
+   Entrega
+   ========================================================== */
+function restoreDeliveryUI() {
+  var wrap = $('deliveryAddressWrap');
+  var ta = $('deliveryAddress');
+  if (ta) ta.value = deliveryAddress;
+
+  var p = $('delivPickup');
+  var s = $('delivShip');
+  if (p && s) {
+    p.classList.toggle('active', delivery === 'pickup');
+    s.classList.toggle('active', delivery === 'ship');
+    p.setAttribute('aria-checked', delivery === 'pickup' ? 'true' : 'false');
+    s.setAttribute('aria-checked', delivery === 'ship' ? 'true' : 'false');
+  }
+  if (wrap) wrap.style.display = (delivery === 'ship') ? 'block' : 'none';
+}
+
+function setDelivery(d) {
+  if (d !== 'pickup' && d !== 'ship') return;
+  delivery = d;
+  saveDelivery();
+  restoreDeliveryUI();
+}
+
+function saveAddress(v) {
+  deliveryAddress = v || '';
+  saveDelivery();
 }
 
 /* ==========================================================
@@ -580,9 +628,17 @@ function buildOrderText() {
   var trendLabel = trend === 'up' ? 'subiendo' : (trend === 'down' ? 'bajando' : 'estable');
   var margin = currentMargin();
 
+  var entregaTexto;
+  if (delivery === 'ship') {
+    entregaTexto = 'ENVIAR POR MENSAJERÍA\nDirección: ' + (deliveryAddress.trim() || '(sin especificar)');
+  } else {
+    entregaTexto = 'RECOGER EN TIENDA\n(Guanabacoa, La Habana)';
+  }
+
   var text =
     "MG'S STORE — PEDIDO\n\n" +
-    "Modalidad: " + (mode === 'wholesale' ? 'MAYORISTA' : 'MINORISTA') + "\n\n" +
+    "Modalidad: " + (mode === 'wholesale' ? 'MAYORISTA' : 'MINORISTA') + "\n" +
+    "Entrega: " + entregaTexto + "\n\n" +
     rows.join('\n') + "\n\n" +
     "TOTAL USD: " + fmt(usd) + "\n" +
     "TOTAL CUP: " + fmt(usd * calc) + "\n" +
@@ -592,31 +648,37 @@ function buildOrderText() {
   return { text: text, total: usd };
 }
 
-function sendWhatsApp() {
+function validarPedido() {
   if (mode === 'wholesale') {
     var keys = Object.keys(cart);
     for (var i = 0; i < keys.length; i++) {
       if (cart[keys[i]] < 5) {
         alert('Cada producto mayorista debe tener mínimo 5 unidades.');
-        return;
+        return false;
       }
     }
   }
+  if (delivery === 'ship' && !deliveryAddress.trim()) {
+    alert('Por favor escribe la dirección de entrega para el envío por mensajería.');
+    var ta = $('deliveryAddress');
+    if (ta) {
+      ta.focus();
+      if (ta.scrollIntoView) ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return false;
+  }
+  return true;
+}
+
+function sendWhatsApp() {
+  if (!validarPedido()) return;
   var order = buildOrderText();
   if (!order) return alert('El carrito está vacío.');
   window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(order.text), '_blank');
 }
 
 function copyOrder() {
-  if (mode === 'wholesale') {
-    var keys = Object.keys(cart);
-    for (var i = 0; i < keys.length; i++) {
-      if (cart[keys[i]] < 5) {
-        alert('Cada producto mayorista debe tener mínimo 5 unidades.');
-        return;
-      }
-    }
-  }
+  if (!validarPedido()) return;
   var order = buildOrderText();
   if (!order) return alert('El carrito está vacío.');
 
@@ -788,7 +850,7 @@ function descargarPDF(tipo) {
       '</div>' +
       '<div class="cover-contact">' +
         '<div class="cover-contact-title">Contacto</div>' +
-        '<div>WhatsApp: +53 5480 0976</div>' +
+        '<div>WhatsApp: +53 5889 0678</div>' +
         '<div>Guanabacoa, La Habana · Cuba</div>' +
       '</div>' +
       '<div class="cover-note">Los precios son referenciales y pueden variar. Confirma por WhatsApp antes de comprar. <strong>Revisa tu pieza antes de pagar — no hay devoluciones.</strong></div>' +
@@ -803,7 +865,7 @@ function descargarPDF(tipo) {
       '<div class="final-qr">' +
         '<img src="' + qrURL + '" alt="QR">' +
       '</div>' +
-      '<div class="final-wa">📲 +53 5480 0976</div>' +
+      '<div class="final-wa">📲 +53 5889 0678</div>' +
       '<div class="final-note">Mayorista: mínimo 5 unidades del mismo producto · Entregas en La Habana · Lun–Vie 9 AM–5 PM · Sáb 9 AM–12 PM<br><strong>Revisa bien tu producto antes de comprar — no aceptamos devoluciones.</strong></div>' +
     '</div>' +
 
