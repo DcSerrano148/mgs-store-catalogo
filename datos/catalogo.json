@@ -1,6 +1,6 @@
 {
-  "version": "20260927-0013",
-  "generated_at": "2026-09-27T00:13:17",
+  "version": "20260928-0228",
+  "generated_at": "2026-09-28T02:28:41",
   "total": 89,
   "items": [
     {
@@ -415,7 +415,7 @@
       "name": "Intermitentes 12V",
       "cat": "Iluminación",
       "seccion": "💰 Oportunidades",
-      "stock": 12,
+      "stock": 6,
       "disponible": true,
       "retail": 8.0,
       "wholesale": null,
@@ -426,8 +426,8 @@
       "name": "Intermitentes led juego de 4",
       "cat": "Iluminación",
       "seccion": "💰 Oportunidades",
-      "stock": 6,
-      "disponible": true,
+      "stock": 0,
+      "disponible": false,
       "retail": 10.0,
       "wholesale": null,
       "photo": "fotos/MG-039.jpg"
@@ -437,7 +437,7 @@
       "name": "Intermitentes secuenciales",
       "cat": "Iluminación",
       "seccion": "💰 Oportunidades",
-      "stock": 6,
+      "stock": 12,
       "disponible": true,
       "retail": 6.0,
       "wholesale": null,
