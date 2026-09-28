@@ -1416,7 +1416,30 @@ input,select{font:inherit}
   .count-badge{font-size:11px;padding:4px 8px}
   .pdf-btn span{display:none}
   .pdf-btn{padding:7px 9px}
-  .pdf-menu{width:260px}
+  .pdf-menu{
+  position:fixed;
+  top:auto;
+  bottom:0;
+  left:0;
+  right:0;
+  width:auto;
+  max-width:none;
+  max-height:75vh;
+  overflow-y:auto;
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+  padding:10px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  box-shadow:0 -12px 40px rgba(15,23,42,.25);
+  animation:pdfSheetIn .22s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes pdfSheetIn{
+  from{opacity:0;transform:translateY(100%)}
+  to{opacity:1;transform:translateY(0)}
+}
+.pdf-menu button{padding:12px}
+.pm-icon{font-size:20px}
+.pm-text strong{font-size:14px}
+.pm-text span{font-size:11.5px}
 
   .grid{
     grid-template-columns:repeat(2,minmax(0,1fr));
